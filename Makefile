@@ -1,19 +1,21 @@
 CXX       = g++
-CFLAGS    = -g
-CSRCS     = $(wildcard *.cpp)
-CHDRS     = $(wildcard *.h)
-COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
+CFLAGS    = -g -Iinclude
+CSRCS     = $(wildcard src/*.cpp)
+CHDRS     = $(wildcard include/*.h)
+#COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
 
-all : cspice
+COBJS     = obj/main.o obj/parser.o obj/simulator.o obj/tree.o
 
-cspice : $(COBJS)
-	$(CXX) $(CFLAGS) -o cspice $(COBJS)
+all : bin/cspice
 
-%.o : %.cpp
+bin/cspice : $(COBJS)
+	$(CXX) $(CFLAGS) -o $@ $(COBJS)
+
+obj/%.o : src/%.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 $(COBJS) : $(CHDRS)
 
 clean:
-	rm -f $(COBJS)
+	-rm -f obj/* bin/*
 

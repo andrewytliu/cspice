@@ -19,7 +19,7 @@ class Simulator {
 public:
    Simulator(Tree& tree, SimulateConfig& config) ;
    void simulate();
-   void plot(ofstream fout) const;
+   void plot(ofstream& fout) const;
 private:
    Tree _tree;
    SimulateConfig _config;

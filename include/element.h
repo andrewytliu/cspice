@@ -9,7 +9,7 @@ using namespace std;
 class Element {
 public:
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
-   virtual string formula() const   = 0 ; // the formula of Z
+   virtual string formula() const   = 0 ; // the formula of Y (admittance)
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
    virtual double value() const     = 0 ; // the admittance = s^(order()) * value()
    string name() const { return this->_name; }

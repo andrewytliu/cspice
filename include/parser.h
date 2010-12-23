@@ -4,18 +4,25 @@
 #include "tree.h"
 #include "simulator.h"
 #include <fstream>
+#include <string>
+#include <vector>
 using namespace std;
 
 class Parser {
 public:
    Parser(ifstream& fin) ;
-   const Tree& getTree() const { return _tree; }
-   const SimulateConfig& getConfig() const { return *_config; }
-   Tree& getTree() { return _tree; }
-   SimulateConfig& getConfig() { return *_config; }
+   const Tree& getTree() const { return tree; }
+   const vector<SimulateConfig>& getConfig() const { return config; }
+   Tree& getTree() { return tree; }
+   vector<SimulateConfig>& getConfig() { return config; }
+
 private:
-   Tree _tree;
-   SimulateConfig* _config;
+   void getRLC(ifstream& fin, string& name);
+   void getGm(ifstream& fin);
+   void getPreset(ifstream& fin, string& name);
+
+   Tree tree;
+   vector<SimulateConfig> config;
 };
 
 #endif /* __PARSER_H__ */

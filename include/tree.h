@@ -3,6 +3,7 @@
 
 #include "element.h"
 #include <vector>
+#include <map>
 using namespace std;
 
 class Tree ;
@@ -13,7 +14,9 @@ class Connection ;
 
 class Tree {
 public:
+   Node& getNodeById(unsigned id) ;
    vector<Node> nodes ;
+   map<unsigned, unsigned> id_map ;
 };
 
 class Node {

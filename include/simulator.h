@@ -5,24 +5,24 @@
 #include <fstream>
 using namespace std;
 
-class SimulateConfig {};
-
-class TimeSimulateConfig : SimulateConfig {
-
+enum SimulateType {
+   TIME,
+   FREQ
 };
 
-class FreqSimulateConfig : SimulateConfig {
-
+class SimulateConfig {
+public:
+   SimulateType type;
+   double start, end, step;
 };
 
 class Simulator {
 public:
-   Simulator(Tree& tree, SimulateConfig& config) ;
-   void simulate();
+   Simulator(Tree& tree) ;
+   void simulate(SimulateConfig& config);
    void plot(ofstream& fout) const;
 private:
-   Tree _tree;
-   SimulateConfig _config;
+   Tree tree;
 };
 
 #endif /* __SIMULATOR_H__ */

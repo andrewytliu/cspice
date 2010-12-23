@@ -1,33 +1,19 @@
-LIBPKGS = lib
-MAIN    = main
+CXX       = g++
+CFLAGS    = -g
+CSRCS     = $(wildcard *.cpp)
+CHDRS     = $(wildcard *.h)
+COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
 
-LIBS    = $(addprefix -l, $(LIBPKGS))
+all : cspice
 
-all: libs main
+cspice : $(COBJS)
+	$(CXX) $(CFLAGS) -o cspice $(COBJS)
 
-libs:
-	@for pkg in $(LIBPKGS); \
-	do \
-		echo "Checking $$pkg..."; \
-		cd $$pkg; make --no-print-directory PKGNAME=$$pkg; \
-		cd ..; \
-	done
+%.o : %.cpp
+	$(CXX) $(CFLAGS) -c -o $@ $<
 
-main:
-	@echo "Checking $(MAIN)..."
-	@cd $(MAIN); \
-		make --no-print-directory INCLIB="$(LIBS)";
-	@ln -fs bin/$(EXEC) .
+$(COBJS) : $(CHDRS)
 
 clean:
-	@for pkg in $(LIBPKGS); \
-	do \
-		echo "Cleaning $$pkg..."; \
-		cd $$pkg; make --no-print-directory PKGNAME=$$pkg clean; \
-		cd ..; \
-	done
-	@echo "Cleaning $(MAIN)..."
-	@cd $(MAIN); make --no-print-directory clean
-	@echo "Removing $(EXEC)..."
-	@rm -f bin/$(EXEC)
+	rm -f $(COBJS)
 

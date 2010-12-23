@@ -2,24 +2,27 @@
 #define __SIMULATOR_H__
 
 #include "tree.h"
+#include <fstream>
+using namespace std;
+
+class SimulateConfig {};
+
+class TimeSimulateConfig {
+
+};
+
+class FreqSimulateConfig {
+
+};
 
 class Simulator {
 public:
-   Simulator(Tree& tree) ;
+   Simulator(Tree& tree, SimulateConfig& config) ;
+   void simulate();
+   void plot(ofstream fout) const;
 private:
    Tree _tree;
-};
-
-class TimeSimulator : public Simulator {
-public:
-   void simulate() ;
-   void plot() ;
-};
-
-class FreqSimulator : public Simulator {
-public:
-   void simulate() ;
-   void plot() ;
+   SimulateConfig _config;
 };
 
 #endif /* __SIMULATOR_H__ */

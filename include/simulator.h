@@ -7,11 +7,11 @@ using namespace std;
 
 class SimulateConfig {};
 
-class TimeSimulateConfig {
+class TimeSimulateConfig : SimulateConfig {
 
 };
 
-class FreqSimulateConfig {
+class FreqSimulateConfig : SimulateConfig {
 
 };
 

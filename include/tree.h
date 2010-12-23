@@ -12,6 +12,7 @@ class Connection ;
 /**  Class definitions **/
 
 class Tree {
+public:
    vector<Node> nodes ;
 };
 

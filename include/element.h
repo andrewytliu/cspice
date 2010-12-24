@@ -76,5 +76,43 @@ public:
    }
 };
 
+class VCCS : public Element {
+public:
+   virtual string type() const {
+      return "Voltage Controlled Current Source" ;
+   }
+
+   virtual string formula() const {
+      return this->_name ;
+   }
+
+   virtual int order() const {
+      return 0;
+   }
+
+   virtual double value() const {
+      return this->_value ;
+   }
+};
+
+class Dummy : public Element {
+public:
+   virtual string type() const {
+      return "Dummy" ;
+   }
+
+   virtual string formula() const {
+      return this->_name ;
+   }
+
+   virtual int order() const {
+      return 0;
+   }
+
+   virtual double value() const {
+      return this->_value ;
+   }
+};
+
 #endif /* __ELEMENT_H__ */
 

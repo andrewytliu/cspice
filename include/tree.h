@@ -12,11 +12,20 @@ class Connection ;
 
 /**  Class definitions **/
 
+enum InputType {
+   VIN,
+   IIN
+};
+
 class Tree {
 public:
    Tree() ;                         // should generate GND first
    Node* getNodeById(unsigned id) ; // consturct new node if not exist
    Node* getGnd() { return getNodeById(0); }
+   bool  checkTree() ;              // check floating node by DFS from GND
+
+   Node* input_high, input_low, output_high, output_low ;
+   InputType input_type ;
    vector<Node> nodes ;
    map<unsigned, unsigned> id_map ;
 };

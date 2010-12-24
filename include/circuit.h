@@ -28,6 +28,11 @@ public:
    InputType input_type ;
    vector<Node> nodes ;
    map<unsigned, unsigned> id_map ;
+
+   vector<vector<Element*> > enumTree() ;  // list all the spanning tree of the
+                                          //current circuit.
+private:
+   void dfs(vector<bool>& visited, vector<vector<bool> >& used, vector<Element*> elements) ;
 };
 
 class Node {

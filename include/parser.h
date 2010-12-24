@@ -1,7 +1,7 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
-#include "tree.h"
+#include "circuit.h"
 #include "simulator.h"
 #include <fstream>
 #include <string>
@@ -11,9 +11,9 @@ using namespace std;
 class Parser {
 public:
    Parser(ifstream& fin) ;
-   const Tree& getTree() const { return tree; }
+   const Circuit& getCircuit() const { return circuit; }
    const vector<SimulateConfig>& getConfig() const { return config; }
-   Tree& getTree() { return tree; }
+   Circuit& getCircuit() { return circuit; }
    vector<SimulateConfig>& getConfig() { return config; }
 
 private:
@@ -21,7 +21,7 @@ private:
    void getGm(const string& line);
    void getPreset(const string& line);
 
-   Tree tree;
+   Circuit circuit;
    vector<SimulateConfig> config;
 };
 

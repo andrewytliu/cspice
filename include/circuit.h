@@ -1,12 +1,12 @@
-#ifndef __TREE_H__
-#define __TREE_H__
+#ifndef __CIRCUIT_H__
+#define __CIRCUIT_H__
 
 #include "element.h"
 #include <vector>
 #include <map>
 using namespace std;
 
-class Tree ;
+class Circuit ;
 class Node ;
 class Connection ;
 
@@ -17,12 +17,12 @@ enum InputType {
    IIN
 };
 
-class Tree {
+class Circuit {
 public:
-   Tree() ;                         // should generate GND first
+   Circuit() ;                         // should generate GND first
    Node* getNodeById(unsigned id) ; // consturct new node if not exist
    Node* getGnd() { return getNodeById(0); }
-   bool  checkTree() ;              // check floating node by DFS from GND
+   bool  checkCircuit() ;              // check floating node by DFS from GND
 
    Node* input_high, input_low, output_high, output_low ;
    InputType input_type ;
@@ -43,5 +43,5 @@ public:
    Element * element ;
 };
 
-#endif /* __TREE_H__ */
+#endif /* __CIRCUIT_H__ */
 

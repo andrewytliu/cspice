@@ -49,7 +49,7 @@ void Parser::getRLC(const string& line) {
          // TODO: raise error
    }
 
-   Node *node1 = tree.getNodeById(n1), *node2 = tree.getNodeById(n2);
+   Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
    if(!n1) node1->setConnect(node2, element);
    if(!n2) node2->setConnect(node1, element);
 }
@@ -65,8 +65,8 @@ void Parser::getGm(const string& line) {
 
    Element *element = new VCCS(name, value);
    Element *rev_element = new VCCS("R" + name, -value);
-   Node *node1 = tree.getNodeById(n1), *node2 = tree.getNodeById(n2);
-   Node *node3 = tree.getNodeById(n3), *node4 = tree.getNodeById(n4);
+   Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
+   Node *node3 = circuit.getNodeById(n3), *node4 = circuit.getNodeById(n4);
    // FIXME: this is kind of strange...
    // maybe we need a new element for every link for memory deletion
    node3->setConnect(node2, element);
@@ -86,18 +86,18 @@ void Parser::getPreset(const string& line) {
 
    switch(name[0]) {
       case 'O':
-         tree.output_high = tree.getNodeById(n1);
-         tree.output_low = tree.getNodeById(n2);
+         circuit.output_high = circuit.getNodeById(n1);
+         circuit.output_low = circuit.getNodeById(n2);
          break;
       case 'V':
-         tree.input_high = tree.getNodeById(n1);
-         tree.input_low = tree.getNodeById(n2);
-         tree.input_type = VIN;
+         circuit.input_high = circuit.getNodeById(n1);
+         circuit.input_low = circuit.getNodeById(n2);
+         circuit.input_type = VIN;
          break;
       case 'I':
-         tree.input_high = tree.getNodeById(n1);
-         tree.input_low = tree.getNodeById(n2);
-         tree.input_type = VIN;
+         circuit.input_high = circuit.getNodeById(n1);
+         circuit.input_low = circuit.getNodeById(n2);
+         circuit.input_type = VIN;
          break;
       default:
          // TODO: error

@@ -13,7 +13,7 @@ int main (int argc, char const* argv[])
    ifstream fin(argv[1]);
    ofstream fout(argv[2]);
    Parser parser(fin);
-   Simulator simulator(parser.getTree(), parser.getConfig());
+   Simulator simulator(parser.getCircuit(), parser.getConfig());
    simulator.plot(fout);
    return 0;
 }

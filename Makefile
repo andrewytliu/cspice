@@ -4,7 +4,7 @@ CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
 #COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
 
-COBJS     = obj/main.o obj/parser.o obj/simulator.o obj/tree.o
+COBJS     = obj/main.o obj/parser.o obj/simulator.o obj/circuit.o
 
 all : bin/cspice
 

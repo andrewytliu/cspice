@@ -1,7 +1,7 @@
 #ifndef __SIMULATOR_H__
 #define __SIMULATOR_H__
 
-#include "tree.h"
+#include "circuit.h"
 #include <fstream>
 using namespace std;
 
@@ -18,11 +18,11 @@ public:
 
 class Simulator {
 public:
-   Simulator(Tree& tree) ;
+   Simulator(Circuit& circuit) ;
    void simulate(SimulateConfig& config);
    void plot(ofstream& fout) const;
 private:
-   Tree tree;
+   Circuit circuit;
 };
 
 #endif /* __SIMULATOR_H__ */

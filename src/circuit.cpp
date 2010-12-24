@@ -60,7 +60,7 @@ vector<vector<Element*> > Circuit::enumTree() {
 
    visited[0] = true ;
 
-   this->dfs(visited , used , vector<Element*>() , result) ;
+   this->dfs(size, visited , used , vector<Element*>() , result) ;
 
    return result ;
 }

@@ -22,11 +22,17 @@ void printFormula(vector<vector<Element*> > collection , ostream& fout) {
    }
 }
 
-complex<double , double> evalFormula(vector<vector<Element*> > collection , double freq) {
-   double omega = 2.0 * acos(-1.0) * freq ; // pi = acos(-1.0)
-   double image = 0.0 , real = 0.0 ;
-
+/*
+ * pair<int , double>: order => coefficient
+ * that is, coefficient * s^order
+ *
+ * need to shift the orders and make them all nonnegative,
+ * then one can use evalFormula(coefficients, freq) to evaluate.
+ */
+vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) {
    int sizeOfCollection = collection.size() ;
+   map<int ,double> mapping ;
+   vector<pair<int , double> > result ;
 
    for(int i = 0 ; i < sizeOfCollection ; ++ i) {
       double value = 1 ;
@@ -38,29 +44,40 @@ complex<double , double> evalFormula(vector<vector<Element*> > collection , doub
             order += collection[i][j]->order() ;
          }
       }
+      mapping[order] += value ;
+   }
 
-      if(order >= 0) {
-         for(int j = 0 ; j < order ; ++ j) {
-            value *= omega ;
-         }
-         order &= 3 ;
-      } else {
-         for(int j = 0 ; j < (-order) ; ++ j) {
-            value /= omega ;
-         }
-         order = 3 ^ (order & 3) ;
-      }
+   for(map<int , double>::const_iterator it = mapping.begin() ; it != mapping.end() ; ++ it) {
+      result.push_back((*it)) ;
+   }
+
+   return result ;
+}
+
+/*
+ * coefficients is an array contains a_0, a_1, a_2, ... a_n and this function
+ * evaluate sum[a_k * s^k], where s = i * 2 * pi * freq, k = 0 ... n
+ */
+complex<double , double> evalFormula(vector<double> coefficients, double freq) {
+   double omega = 2.0 * acos(-1.0) * freq ; // pi = acos(-1.0)
+   double image = 0.0 , real = 0.0 ;
+
+   int maxOrder = coefficients.size() ;
+   double s = 1 ;
+
+   for(int order = 0 ; order < maxOrder ; ++ order) {
       // i^0 = 1, i^1 = i, i^2 = -1, i^3 = -i
-      switch((order&3)) {
+      switch(order & 3) {
          case 0:
-            real  += value ;  break ;
+            real  += s * coefficients[order] ; break ;
          case 1:
-            image += value ;  break ;
+            image += s * coefficients[order] ; break ;
          case 2:
-            real  -= value ;  break ;
+            real  -= s * coefficients[order] ; break ;
          case 3:
-            image -= value ;  break ;
+            image -= s * coefficients[order] ; break ;
       }
+      s *= omega ;
    }
    return complex<double , double>(real , image) ;
 }

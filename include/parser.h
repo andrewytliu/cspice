@@ -17,9 +17,9 @@ public:
    vector<SimulateConfig>& getConfig() { return config; }
 
 private:
-   void getRLC(ifstream& fin, string& name);
-   void getGm(ifstream& fin);
-   void getPreset(ifstream& fin, string& name);
+   void getRLC(const string& line);
+   void getGm(const string& line);
+   void getPreset(const string& line);
 
    Tree tree;
    vector<SimulateConfig> config;

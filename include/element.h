@@ -8,6 +8,7 @@ using namespace std;
  */
 class Element {
 public:
+   Element(string name, double value) : _name(name), _value(value) {}
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
    virtual string formula() const   = 0 ; // the formula of Z
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1

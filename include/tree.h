@@ -14,7 +14,9 @@ class Connection ;
 
 class Tree {
 public:
-   Node& getNodeById(unsigned id) ;
+   Tree() ;                         // should generate GND first
+   Node* getNodeById(unsigned id) ; // consturct new node if not exist
+   Node* getGnd() { return getNodeById(0); }
    vector<Node> nodes ;
    map<unsigned, unsigned> id_map ;
 };
@@ -22,6 +24,7 @@ public:
 class Node {
 public:
    unsigned nodeId ; // used to identify
+   void setConnect(Node* destination, Element* element) ;
    vector<Connection> connections ;
 };
 

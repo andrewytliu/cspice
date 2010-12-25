@@ -22,6 +22,10 @@ Parser::Parser(ifstream& fin) {
          case 'O':
             getPreset(line);
             break;
+         case 'F':
+         case 'T':
+            getConfig(line);
+            break;
          default:
             // TODO: should raise error here
             break ;
@@ -71,8 +75,7 @@ void Parser::getGm(const string& line) {
    Element *rev_element = new VCCS("R" + name, -value);
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
    Node *node3 = circuit.getNodeById(n3), *node4 = circuit.getNodeById(n4);
-   // FIXME: this is kind of strange...
-   // maybe we need a new element for every link for memory deletion
+
    node3->setConnect(node2, element);
    node3->setConnect(node1, rev_element);
    if(!n4) {
@@ -107,5 +110,24 @@ void Parser::getPreset(const string& line) {
          // TODO: error
          break ;
    }
+}
+
+void getConfig(const string& line) {
+   isstream sin(line);
+   string type;
+   SimulateConfig single;
+   sin >> type >> single.start >> single.end >> single.step;
+
+   switch(type[0]) {
+      case 'F':
+         single.type = FREQ;
+         break;
+      case 'T':
+         single.type = TIME;
+         break;
+      default:
+         // TODO: error
+   }
+   config.push_back(single);
 }
 

@@ -22,17 +22,33 @@ class Circuit {
 friend class Parser;
 public:
    Circuit() ;                      // should generate GND first
-   Node* getNodeById(unsigned id) ; // consturct new node if not exist
+   Node* getNodeById(unsigned id) { // consturct new node if not exist
+      return & nodes[getIndexById(id)] ;
+   }
+
    Node* getGnd() { return getNodeById(0); }
    bool  checkCircuit() ;           // check floating node by DFS from GND
-   vector<vector<Element*> > enumTree() ;  // list all the spanning tree of the
+   vector<vector<Element*> > enumTree(unsigned refNodeId) ; // list all the spanning tree of the
                                           //current circuit.
+   Node * getInputHigh () { return getNodeById(inputHighId) ; }
+   Node * getOutputHigh() { return getNodeById(outputHighId); }
+   Node * getInputLow  () { return getNodeById(inputLowId)  ; }
+   Node * getOutputLow () { return getNodeById(outputLowId) ; }
+   unsigned getInputHighId () { return inputHighId ; }
+   unsigned getOutputHighId() { return outputHighId; }
+   unsigned getInputLowId  () { return inputLowId  ; }
+   unsigned getOutputLowId () { return outputLowId ; }
+   InputType getInputType() const {return inputType ;}
+
 private:
    void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<Element*>&, vector<vector<Element*> >&) ;
 
-   InputType input_type ;
-   Node *input_high, *input_low, *output_high, *output_low ;
-   map<unsigned, unsigned> id_map ;
+   unsigned getIndexById(unsigned id) ;
+
+   InputType inputType ;
+   unsigned inputHighId , inputLowId , outputHighId , outputLowId ;
+   //Node *input_high, *input_low, *output_high, *output_low ;
+   map<unsigned, unsigned> idMap ; // mapping node id to index of nodes
    vector<Node> nodes ;
 };
 

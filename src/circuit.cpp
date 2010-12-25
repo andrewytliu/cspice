@@ -43,10 +43,11 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 }
 
-vector<vector<Element*> > Circuit::enumTree() {
+vector<vector<Element*> > Circuit::enumTree(unsigned refNodeId) {
    vector<vector<Element*> > result ;
    vector<Element*> elements ;
    int size = this->nodes.size() ;
+   unsigned refNodeIndex = getIndexById(refNodeId) ;
 
    vector<bool> visited(size) ;
    vector<vector<bool> > used(size) ;
@@ -60,10 +61,23 @@ vector<vector<Element*> > Circuit::enumTree() {
       }
    }
 
-   visited[0] = true ;
+   visited[refNodeIndex] = true ;
 
    this->dfs(size, visited , used , elements , result) ;
 
    return result ;
 }
 
+unsigned Circuit::getIndexById(unsigned id) {
+   map<unsigned, unsigned>::const_iterator it = idMap.find(id) ;
+   if(it == idMap.end()) {
+      // node not exist
+      unsigned index = nodes.size() ;
+      nodes.push_back(Node()) ;
+      nodes[index].nodeId = id ;
+      idMap.insert(pair<unsigned , unsigned>(id , index)) ;
+      return index ;
+   } else {
+      return it->second ;
+   }
+}

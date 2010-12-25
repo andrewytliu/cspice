@@ -58,10 +58,10 @@ void Parser::getRLC(const string& line) {
    }
 
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
-   if(!n1) node1->setConnect(node2, element);
-   if(!n2) node2->setConnect(node1, element);
+   node1->setConnect(node2, (Element*)element->clone());
+   node2->setConnect(node1, (Element*)element->clone());
+   delete element ;
 }
-
 
 void Parser::getGm(const string& line) {
    stringstream sin(line , stringstream::in);
@@ -73,15 +73,14 @@ void Parser::getGm(const string& line) {
 
    Element *element = new VCCS(name, value);
    Element *rev_element = new VCCS("R" + name, -value);
+
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
    Node *node3 = circuit.getNodeById(n3), *node4 = circuit.getNodeById(n4);
 
-   node3->setConnect(node2, element);
-   node3->setConnect(node1, rev_element);
-   if(!n4) {
-      node4->setConnect(node1, element);
-      node4->setConnect(node2, rev_element);
-   }
+   node3->setConnect(node2, (Element *)element->clone());
+   node3->setConnect(node1, (Element *)rev_element->clone());
+   node4->setConnect(node1, (Element *)element->clone());
+   node4->setConnect(node2, (Element *)rev_element->clone());
 }
 
 
@@ -93,18 +92,18 @@ void Parser::getPreset(const string& line) {
 
    switch(name[0]) {
       case 'O':
-         circuit.output_high = circuit.getNodeById(n1);
-         circuit.output_low = circuit.getNodeById(n2);
+         circuit.outputHighId = n1;
+         circuit.outputLowId  = n2;
          break;
       case 'V':
-         circuit.input_high = circuit.getNodeById(n1);
-         circuit.input_low = circuit.getNodeById(n2);
-         circuit.input_type = VIN;
+         circuit.inputHighId = n1;
+         circuit.inputLowId  = n2;
+         circuit.inputType   = VIN;
          break;
       case 'I':
-         circuit.input_high = circuit.getNodeById(n1);
-         circuit.input_low = circuit.getNodeById(n2);
-         circuit.input_type = VIN;
+         circuit.inputHighId = n1;
+         circuit.inputLowId  = n2;
+         circuit.inputType  = IIN;
          break;
       default:
          // TODO: error
@@ -112,8 +111,8 @@ void Parser::getPreset(const string& line) {
    }
 }
 
-void getConfig(const string& line) {
-   isstream sin(line);
+void Parser::getConfig(const string& line) {
+   stringstream sin(line , stringstream::in);
    string type;
    SimulateConfig single;
    sin >> type >> single.start >> single.end >> single.step;
@@ -127,6 +126,7 @@ void getConfig(const string& line) {
          break;
       default:
          // TODO: error
+         break ;
    }
    config.push_back(single);
 }

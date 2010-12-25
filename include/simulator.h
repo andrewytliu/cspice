@@ -1,8 +1,9 @@
 #ifndef __SIMULATOR_H__
 #define __SIMULATOR_H__
 
-#include "circuit.h"
 #include <fstream>
+#include "circuit.h"
+
 using namespace std;
 
 enum SimulateType {
@@ -18,11 +19,12 @@ public:
 
 class Simulator {
 public:
-   Simulator(Circuit& circuit) ;
+   Simulator(Circuit * circuit) ;
    void simulate(SimulateConfig& config);
    void plot(ofstream& fout) const;
 private:
-   Circuit circuit;
+   void findFormula(vector<double>& num, vector<double>& den) ;
+   Circuit * _circuit;
 };
 
 #endif /* __SIMULATOR_H__ */

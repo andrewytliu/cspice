@@ -1,8 +1,35 @@
 #include <iostream>
 #include <vector>
-#include "element.h"
 #include <complex>
+#include <cmalloc>
+#include "element.h"
+#include "utils.h"
 using namespace std;
+
+SmartObj::SmartObj() {
+   _ref = 0;
+}
+
+SmartObj::~SmartObj() {
+   assert(_ref == 0);
+}
+
+SmartObj* SmartObj::clone() {
+   ++_ref;
+   return this;
+}
+
+void* SmartObj::operator new(size_t size) {
+   return malloc(size * sizeof(size_t));
+}
+
+void SmartObj::operator delete(void* ptr) {
+   SmartObj* obj = (SmartObj*) ptr;
+   --obj->_ref;
+   if(obj->_ref > 0) return;
+   free(ptr);
+   return;
+}
 
 void printFormula(vector<vector<Element*> > collection , ostream& fout) {
    int sizeOfCollection = collection.size() ;
@@ -81,3 +108,4 @@ complex<double , double> evalFormula(vector<double> coefficients, double freq) {
    }
    return complex<double , double>(real , image) ;
 }
+

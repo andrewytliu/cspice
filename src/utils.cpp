@@ -1,35 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <complex>
-#include <cmalloc>
+//#include <cmalloc>
+#include <cstdlib>
+#include <cmath>
 #include "element.h"
 #include "utils.h"
 using namespace std;
-
-SmartObj::SmartObj() {
-   _ref = 0;
-}
-
-SmartObj::~SmartObj() {
-   assert(_ref == 0);
-}
-
-SmartObj* SmartObj::clone() {
-   ++_ref;
-   return this;
-}
-
-void* SmartObj::operator new(size_t size) {
-   return malloc(size * sizeof(size_t));
-}
-
-void SmartObj::operator delete(void* ptr) {
-   SmartObj* obj = (SmartObj*) ptr;
-   --obj->_ref;
-   if(obj->_ref > 0) return;
-   free(ptr);
-   return;
-}
 
 void printFormula(vector<vector<Element*> > collection , ostream& fout) {
    int sizeOfCollection = collection.size() ;
@@ -85,7 +62,7 @@ vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) 
  * coefficients is an array contains a_0, a_1, a_2, ... a_n and this function
  * evaluate sum[a_k * s^k], where s = i * 2 * pi * freq, k = 0 ... n
  */
-complex<double , double> evalFormula(vector<double> coefficients, double freq) {
+complex<double> evalFormula(vector<double> coefficients, double freq) {
    double omega = 2.0 * acos(-1.0) * freq ; // pi = acos(-1.0)
    double image = 0.0 , real = 0.0 ;
 
@@ -106,6 +83,6 @@ complex<double , double> evalFormula(vector<double> coefficients, double freq) {
       }
       s *= omega ;
    }
-   return complex<double , double>(real , image) ;
+   return complex<double>(real , image) ;
 }
 

@@ -1,3 +1,4 @@
+#include "element.h"
 #include "circuit.h"
 
 void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
@@ -44,6 +45,7 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
 
 vector<vector<Element*> > Circuit::enumTree() {
    vector<vector<Element*> > result ;
+   vector<Element*> elements ;
    int size = this->nodes.size() ;
 
    vector<bool> visited(size) ;
@@ -60,7 +62,7 @@ vector<vector<Element*> > Circuit::enumTree() {
 
    visited[0] = true ;
 
-   this->dfs(size, visited , used , vector<Element*>() , result) ;
+   this->dfs(size, visited , used , elements , result) ;
 
    return result ;
 }

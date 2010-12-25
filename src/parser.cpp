@@ -1,10 +1,12 @@
-#include "parser.h"
 #include <sstream>
+#include "parser.h"
+#include "element.h"
 
 Parser::Parser(ifstream& fin) {
-   string line;
+   //string line;
+   char line[1024] ;
    while(true) {
-      fin.getline(line);
+      fin.getline(line , 1024); // this can only use "char *" as argument
       if(fin.eof()) break;
       switch(line[0]) {
          case 'R':
@@ -22,12 +24,13 @@ Parser::Parser(ifstream& fin) {
             break;
          default:
             // TODO: should raise error here
+            break ;
       }
    }
 }
 
 void Parser::getRLC(const string& line) {
-   isstream sin(line);
+   stringstream sin(line , stringstream::in);
    string name;
    unsigned n1, n2;
    double value;
@@ -47,6 +50,7 @@ void Parser::getRLC(const string& line) {
          break;
       default:
          // TODO: raise error
+         break ;
    }
 
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
@@ -56,7 +60,7 @@ void Parser::getRLC(const string& line) {
 
 
 void Parser::getGm(const string& line) {
-   isstream sin(line);
+   stringstream sin(line , stringstream::in);
    string name;
    unsigned n1, n2, n3, n4;
    double value;
@@ -79,7 +83,7 @@ void Parser::getGm(const string& line) {
 
 
 void Parser::getPreset(const string& line) {
-   isstream sin(line);
+   stringstream sin(line , stringstream::in);
    string name;
    unsigned n1, n2;
    sin >> name >> n1 >> n2;
@@ -101,6 +105,7 @@ void Parser::getPreset(const string& line) {
          break;
       default:
          // TODO: error
+         break ;
    }
 }
 

@@ -1,7 +1,7 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
-#include "utils.h"
+#include "smartObj.h"
 #include <string>
 using namespace std;
 /*
@@ -22,6 +22,8 @@ protected:
 
 class Capacitor : public Element {
 public:
+   Capacitor(string name , double value) : Element(name, value) { }
+
    virtual string type() const {
       return "Capacitor" ;
    }
@@ -41,6 +43,7 @@ public:
 
 class Inductor : public Element {
 public:
+   Inductor(string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Inductor" ;
    }
@@ -60,6 +63,7 @@ public:
 
 class Resistor : public Element {
 public:
+   Resistor(string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Resistor" ;
    }
@@ -79,6 +83,7 @@ public:
 
 class VCCS : public Element {
 public:
+   VCCS(string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Voltage Controlled Current Source" ;
    }
@@ -98,6 +103,7 @@ public:
 
 class Dummy : public Element {
 public:
+   Dummy(string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Dummy" ;
    }

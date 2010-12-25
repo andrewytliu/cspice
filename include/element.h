@@ -1,14 +1,15 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
+#include "utils.h"
 #include <string>
 using namespace std;
 /*
  * This is the base type of Resistor, Capacitor, Inductor
  */
-class Element {
+class Element : public SmartObj {
 public:
-   Element(string name, double value) : _name(name), _value(value) {}
+   Element(string name, double value) : SmartObj(), _name(name), _value(value) {}
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
    virtual string formula() const   = 0 ; // the formula of Y (admittance)
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1

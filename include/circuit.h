@@ -40,6 +40,8 @@ public:
    unsigned getOutputLowId () { return outputLowId ; }
    InputType getInputType() const {return inputType ;}
 
+   void print(); // for debug purpose
+
 private:
    void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<Element*>&, vector<vector<Element*> >&) ;
 

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "element.h"
 #include "circuit.h"
 
@@ -81,3 +82,18 @@ unsigned Circuit::getIndexById(unsigned id) {
       return it->second ;
    }
 }
+
+void Circuit::print() {
+   cout << "===== Circuit Detail =====" << endl;
+   for(unsigned i = 0; i < nodes.size(); ++i) {
+      cout << "[" << nodes[i].nodeId << "]" << endl;
+      for(unsigned j = 0; j < nodes[i].connections.size(); ++j)
+         cout << " -> [" << nodes[i].connections[j].destination->nodeId
+              << "] " << nodes[i].connections[j].element->formula() << endl;
+   }
+}
+
+void Node::setConnect(Node* destination, Element* element) {
+   connections.push_back(Connection(destination, (Element*)element->clone()));
+}
+

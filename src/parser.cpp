@@ -58,8 +58,8 @@ void Parser::getRLC(const string& line) {
    }
 
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
-   node1->setConnect(node2, (Element*)element->clone());
-   node2->setConnect(node1, (Element*)element->clone());
+   node1->setConnect(node2, element);
+   node2->setConnect(node1, element);
    delete element ;
 }
 
@@ -77,10 +77,10 @@ void Parser::getGm(const string& line) {
    Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
    Node *node3 = circuit.getNodeById(n3), *node4 = circuit.getNodeById(n4);
 
-   node3->setConnect(node2, (Element *)element->clone());
-   node3->setConnect(node1, (Element *)rev_element->clone());
-   node4->setConnect(node1, (Element *)element->clone());
-   node4->setConnect(node2, (Element *)rev_element->clone());
+   node3->setConnect(node2, element);
+   node3->setConnect(node1, rev_element);
+   node4->setConnect(node1, element);
+   node4->setConnect(node2, rev_element);
 }
 
 

@@ -21,12 +21,10 @@ enum InputType {
 class Circuit {
 friend class Parser;
 public:
-   Circuit() ;                      // should generate GND first
    Node* getNodeById(unsigned id) { // consturct new node if not exist
       return & nodes[getIndexById(id)] ;
    }
 
-   Node* getGnd() { return getNodeById(0); }
    bool  checkCircuit() ;           // check floating node by DFS from GND
    vector<vector<Element*> > enumTree(unsigned refNodeId) ; // list all the spanning tree of the
                                           //current circuit.
@@ -63,6 +61,7 @@ public:
 
 class Connection {
 public:
+   Connection(Node* dest, Element* elem) : destination(dest), element(elem) {}
    Node * destination ;
    Element * element ;
 };

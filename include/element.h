@@ -9,7 +9,8 @@ using namespace std;
  */
 class Element : public SmartObj {
 public:
-   Element(string name, double value) : SmartObj(), _name(name), _value(value) {}
+   Element(string& name, double value) : SmartObj(), _name(name), _value(value) {}
+
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
    virtual string formula() const   = 0 ; // the formula of Y (admittance)
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
@@ -23,7 +24,6 @@ protected:
 class Capacitor : public Element {
 public:
    Capacitor(string name , double value) : Element(name, value) { }
-
    virtual string type() const {
       return "Capacitor" ;
    }
@@ -53,7 +53,7 @@ public:
    }
 
    virtual int order() const {
-      return 0;
+      return -1;
    }
 
    virtual double value() const {

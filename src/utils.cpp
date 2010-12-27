@@ -56,7 +56,9 @@ vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> 
    }
 
    for(map<int , double>::const_iterator it = mapping.begin() ; it != mapping.end() ; ++ it) {
-      result.push_back((*it)) ;
+      if (abs(it->second) > 1.0e-10) { // if the value is too small, ignore it!
+         result.push_back((*it)) ;
+      }
    }
 
    return result ;

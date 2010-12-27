@@ -1,6 +1,7 @@
 #ifndef __CIRCUIT_H__
 #define __CIRCUIT_H__
 
+#define __ELIMINATION__
 #include <vector>
 #include <map>
 #include "element.h"
@@ -47,9 +48,14 @@ public:
    void print() const ;
 
 private:
+#ifdef __ELIMINATION__
    void dfs(int, vector<bool>&, vector<vector<bool> >&,
          vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&,
          vector<pair<char , string> >&) ;
+#else // __ELIMINATION__
+   void dfs(int, vector<bool>&, vector<vector<bool> >&,
+         vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
+#endif // __ELIMINATION__
 
    unsigned getIndexById(unsigned id) ; // consturct new node if not exist
 

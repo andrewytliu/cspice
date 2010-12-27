@@ -4,7 +4,7 @@
 #include "circuit.h"
 
 using namespace std ;
-
+#ifdef __ELIMINATION__
 template<class T>
 static void eliminate(int index , vector< T >& array) {
    typedef typename std::vector<T>::iterator It;
@@ -17,10 +17,17 @@ static void eliminate(int index , vector< T >& array) {
    }
    return ;
 }
+#endif // __ELIMINATION__
 
+#ifdef __ELIMINATION__
 void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
       vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result,
-      vector<pair<char , string> >& trees) {
+      vector<pair<char , string> >& trees)
+#else
+void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
+      vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result)
+#endif
+{
    // visited[i]  -> has nodes[i] been contained in the tree yet?
    // used[i][j]  -> has nodes[i].connections[j] been used yet?
    // elements    -> an array storing current tree edges
@@ -44,7 +51,11 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
                visited[v] = true ;
                used[v][i] = true ;
                elements.push_back(this->nodes[v]->connections[i].element) ;
+#ifdef __ELIMINATION__
                this->dfs(size , visited , used , elements , result , trees) ;
+#else
+               this->dfs(size , visited , used , elements , result) ;
+#endif
                elements.pop_back() ;
                visited[v] = false ;
             }
@@ -59,6 +70,7 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 
    if(done) {
+#ifdef __ELIMINATION__
       // check if elimination could be done
       char sign = 1;
       int eliminateId ;
@@ -99,6 +111,9 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
       }
 
       delete [] names ;
+#else // __ELIMINATION__
+      result.push_back(elements) ;
+#endif // __ELIMINATION__
    }
 }
 
@@ -108,12 +123,11 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
    int size = this->nodes.size() ;
    unsigned refNodeIndex = getIndexById(refNode->nodeId) ;
 
-   cout << "Reference Node Id = " << refNode->nodeId << ", index = " << refNodeIndex << endl ;
-
    vector<bool> visited(size , false) ;
    vector<vector<bool> > used(size) ;
+#ifdef __ELIMINATION__
    vector<pair<char , string> > trees ; // pair of sign, element names
-
+#endif // __ELIMINATION__
    for(int i = 0 ; i < size ; i ++) {
       int size_2 = this->nodes[i]->connections.size() ;
       used[i] = vector<bool>(size_2 , false) ;
@@ -121,8 +135,11 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
 
    visited[refNodeIndex] = true ;
 
+#ifdef __ELIMINATION__
    this->dfs(size, visited , used , elements , result , trees) ;
-
+#else
+   this->dfs(size, visited , used , elements , result) ;
+#endif
    return result ;
 }
 

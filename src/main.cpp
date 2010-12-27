@@ -17,18 +17,13 @@ int main (int argc, char const* argv[])
       ofstream fout(argv[2]);
       Parser parser(fin);
       parser.getCircuit().print() ;
+      Simulator simulator(&parser.getCircuit());
+      for(int i = 0 , size = parser.getConfig().size() ; i < size ; ++ i) {
+         simulator.simulate(parser.getConfig()[i]);
+      }
    }
 
    SmartObj::print() ;
-      /*
-      Simulator simulator(&parser.getCircuit());
-      for(int i = 0 , size = parser.getConfig().size() ; i < size ; ++ size) {
-         simulator.simulate(parser.getConfig()[i]);
-      }
-      */
-   //} catch (bad_alloc & ba) {
-   //   cerr << ba.what() << endl ;
-   //}
    return 0;
 }
 

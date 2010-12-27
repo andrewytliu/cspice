@@ -8,9 +8,9 @@
 
 using namespace std ;
 
-extern void printFormula(vector<vector<Element*> > collection , ostream& fout) ;
-extern complex<double> evalFormula(vector<vector<Element*> > collection , double freq);
-extern vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) ;
+extern void printFormula(const vector<vector<SmartPtr<Element> > > & , ostream &) ;
+extern complex<double> evalFormula(const vector<double> & , const double&);
+extern vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> > > &) ;
 
 #endif /* __UTILS_H__ */
 

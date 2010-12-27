@@ -16,13 +16,15 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
 
    vector<pair<int , int> > recoverList ;
 
-   for(int v = 1 ; v < size ; ++ v) { // we don't need to check nodes[0], it is GND
+   for(int v = 0 ; v < size ; ++ v) {
       if(visited[v] == false) {
          done = false ;
          int amountOfConnections = this->nodes[v]->connections.size() ;
          for(int i = 0 ; i < amountOfConnections ; ++ i) {
             unsigned desId = this->nodes[v]->connections[i].destination->nodeId ;
-            if(visited[desId] == true && used[v][i] == false) {
+            unsigned desIndex = getIndexById(desId) ;
+
+            if(visited[desIndex] == true && used[v][i] == false) {
                recoverList.push_back(pair<int , int>(v , i)) ;
                visited[v] = true ;
                used[v][i] = true ;
@@ -46,22 +48,20 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 }
 
-vector<vector<SmartPtr<Element> > > Circuit::enumTree(unsigned refNodeId) {
+vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
    vector<vector<SmartPtr<Element> > > result ;
    vector<SmartPtr<Element> > elements ;
    int size = this->nodes.size() ;
-   unsigned refNodeIndex = getIndexById(refNodeId) ;
+   unsigned refNodeIndex = getIndexById(refNode->nodeId) ;
 
-   vector<bool> visited(size) ;
+   cout << "Reference Node Id = " << refNode->nodeId << ", index = " << refNodeIndex << endl ;
+
+   vector<bool> visited(size , false) ;
    vector<vector<bool> > used(size) ;
 
    for(int i = 0 ; i < size ; i ++) {
       int size_2 = this->nodes[i]->connections.size() ;
-      visited[i] = false ;
-      used[i] = vector<bool>(size_2) ;
-      for(int j = 0 ; j < size_2 ; j ++) {
-         used[i][j] = false ;
-      }
+      used[i] = vector<bool>(size_2 , false) ;
    }
 
    visited[refNodeIndex] = true ;

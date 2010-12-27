@@ -8,18 +8,18 @@
 #include "utils.h"
 using namespace std;
 
-void printFormula(vector<vector<Element*> > collection , ostream& fout) {
+void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostream& fout) {
    int sizeOfCollection = collection.size() ;
 
    for(int i = 0 ; i < sizeOfCollection ; ++ i) {
       int amountOfElements = collection[i].size() ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
-         if (collection[i][j]->type() != "Dummy") {
-            fout << "(" << collection[i][j]->formula() << ")" ;
-         }
+         //if (collection[i][j]->type() != "Dummy") {
+            fout << "(" << collection[i][j]->formula() << ") " ;
+         //}
       }
       if(i != sizeOfCollection - 1) {
-         fout << " +" << endl ;
+         fout << "+" << endl ;
       } else {
          fout << endl ;
       }
@@ -33,7 +33,7 @@ void printFormula(vector<vector<Element*> > collection , ostream& fout) {
  * need to shift the orders and make them all nonnegative,
  * then one can use evalFormula(coefficients, freq) to evaluate.
  */
-vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) {
+vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> > >& collection) {
    int sizeOfCollection = collection.size() ;
    map<int ,double> mapping ;
    vector<pair<int , double> > result ;
@@ -43,10 +43,10 @@ vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) 
       int order = 0;
       int amountOfElements = collection[i].size() ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
-         if (collection[i][j]->type() != "Dummy") {
+         //if (collection[i][j]->type() != "Dummy") {
             value *= collection[i][j]->value() ;
             order += collection[i][j]->order() ;
-         }
+         //}
       }
       mapping[order] += value ;
    }
@@ -62,7 +62,7 @@ vector<pair<int , double> > expandFormula(vector<vector<Element*> > collection) 
  * coefficients is an array contains a_0, a_1, a_2, ... a_n and this function
  * evaluate sum[a_k * s^k], where s = i * 2 * pi * freq, k = 0 ... n
  */
-complex<double> evalFormula(vector<double> coefficients, double freq) {
+complex<double> evalFormula(const vector<double>& coefficients,const double& freq) {
    double omega = 2.0 * acos(-1.0) * freq ; // pi = acos(-1.0)
    double image = 0.0 , real = 0.0 ;
 

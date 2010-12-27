@@ -1,4 +1,10 @@
+#include <iostream>
+#include <vector>
+
+#include "utils.h"
 #include "simulator.h"
+
+using namespace std ;
 
 static void store(const vector<pair<int , double> >& mapping , vector<double>& array) {
    // we may assume that
@@ -20,53 +26,95 @@ Simulator::Simulator(Circuit * circuit) : _circuit(circuit) {
 }
 
 void Simulator::findFormula(vector<double>& num, vector<double>& den) {
-   cerr << "Not done yet!" << endl ;
-   throw "Not done yet!" ;
    vector<pair<int , double> > tmp_den ;
    vector<pair<int , double> > tmp_num ;
+   vector<vector<SmartPtr<Element> > > denSpanningTrees ;
+   vector<vector<SmartPtr<Element> > > numSpanningTrees ;
+   Node *iH , *iL , *oH , *oL ;
+
+   iH = _circuit->   getInputHigh   () ;
+   iL = _circuit->   getInputLow    () ;
+   oH = _circuit->   getOutputHigh  () ;
+   oL = _circuit->   getOutputLow   () ;
+
    if (_circuit->getInputType() == VIN) {
-      // 1. back up and remove all the elements leaving input_high [TODO]
-      vector<Element *> backUp ;
-      // 2. find den: [TODO]
+      cout << "Input type is VIN" << endl ;
+      // 1. back up and remove all the elements leaving input_high
+      vector<Connection> backUp ;
+      backUp = iH->connections;
+      iH->connections.clear() ;
+      // 2. find den:
       //    a. add a dummy cell (value = 1) from input_high to input_low
+      iH->setConnect(iL , SmartPtr<Element>(new Dummy("Dummy element for DEN" , 1.0))) ;
+      cout << "Print out DEN graph" << endl ;
+      _circuit->print() ;
       //    b. get all spanning trees (input_low is the reference node)
-      //    c. convert it into formula (den)
-      //    d. remove dummy cell
-      // 3. find num: [TODO]
-      //    a. add a dummy cell (value = 1) from input_high to output_high
-      //    b. add a dummy cell (value =-1) from input_high to output_low
+      denSpanningTrees = _circuit->enumTree(iL) ;
+      //    c. remove dummy cell
+      iH->connections.clear() ;
+      // 3. find num:
+      //    a. add a dummy cell (value =-1) from input_high to output_high
+      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM" ,-1.0))) ;
+      //    b. add a dummy cell (value = 1) from input_high to output_low
+      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM" , 1.0))) ;
+      cout << "Print out NUM graph" << endl ;
+      _circuit->print() ;
       //    c. get all spanning trees (input_low is the reference node)
-      //    d. convert it into formula (num)
+      numSpanningTrees = _circuit->enumTree(iL) ;
       //    d remove dummy cell
-      // 4. restore the elements leaving input_high [TODO]
+      iH->connections.clear() ;
+      // 4. restore the elements leaving input_high
+      iH->connections = backUp ;
    } else if(_circuit->getInputType() == IIN) {
-      // 1. find den: [TODO]
+      cout << "Input type is IIN" << endl ;
+      cout << "Print out DEN graph" << endl ;
+      _circuit->print() ;
+
+      // 1. find den:
       //    a. get all spanning trees (input_low is the reference node)
-      //    b. convert it into formula (den)
-      // 2. back up and remove all the elements leaving input_high [TODO]
-      vector<Element *> backUp ;
-      // 3. find num: [TODO]
-      //    a. add a dummy cell (value = 1) from input_high to output_high
-      //    b. add a dummy cell (value =-1) from input_high to output_low
+      denSpanningTrees = _circuit->enumTree(iL) ;
+      // 2. back up and remove all the elements leaving input_high
+      vector<Connection> backUp = iH->connections ;
+      iH->connections.clear() ;
+      // 3. find num:
+      //    a. add a dummy cell (value =-1) from input_high to output_high
+      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM" ,-1.0))) ;
+      //    b. add a dummy cell (value =+1) from input_high to output_low
+      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM" , 1.0))) ;
+      cout << "Print out DEN graph" << endl ;
+      _circuit->print() ;
       //    c. get all spanning trees (input_low is the reference node)
-      //    d. convert it into formula (num)
+      numSpanningTrees = _circuit->enumTree(iL) ;
       //    d remove dummy cell
-      // 4. restore the elements leaving input_high [TODO]
+      iH->connections.clear() ;
+      // 4. restore the elements leaving input_high
+      iH->connections = backUp ;
    } else {
       // TODO create corresponding exception class
       throw "Input type should be VIN or IIN" ;
    }
-   // 5. adjust the order of num and den
+   // DEBUG: print out formula
+   cout << "======== Print out Den Tree ========" << endl ;
+   printFormula(denSpanningTrees , cout) ;
+   cout << "======== Print out Num Tree ========" << endl ;
+   printFormula(numSpanningTrees , cout) ;
+   cout << endl ;
+   // 5. expand formula
+   tmp_den = expandFormula(denSpanningTrees) ;
+   tmp_num = expandFormula(numSpanningTrees) ;
+   // 6. adjust the order of num and den
    int minOrder = tmp_num[0].first > tmp_den[0].first ? tmp_den[0].first : tmp_num[0].first;
    int tmp_num_size = tmp_num.size() , tmp_den_size = tmp_den.size() ;
    for(int i = 0 ; i < tmp_num_size ; ++ i)
       tmp_num[i].first -= minOrder ;
    for(int i = 0 ; i < tmp_den_size ; ++ i)
       tmp_den[i].first -= minOrder ;
-   // 6. store num
+   // 7. store num
    store(tmp_num , num) ;
-   // 7. store den
+   // 8. store den
    store(tmp_den , den) ;
+
+   return ;
 }
 
 void Simulator::simulate(SimulateConfig& config) {

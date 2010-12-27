@@ -122,6 +122,9 @@ public:
    }
 
    virtual string formula() const {
+      if (this->_value > 0) return "Dummy(+1)" ;
+      else if(this->_value < 0) return "Dummy(-1)" ;
+
       return this->_name ;
    }
 

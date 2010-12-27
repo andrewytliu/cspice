@@ -32,7 +32,7 @@ public:
    bool  checkCircuit() ;            // check floating node by DFS from GND
 
    // list all the spanning tree of the current circuit.
-   vector<vector<SmartPtr<Element> > > enumTree(unsigned refNodeId) ;
+   vector<vector<SmartPtr<Element> > > enumTree(const Node *) ;
 
    Node * getInputHigh () { return getNodeById(inputHighId) ; }
    Node * getOutputHigh() { return getNodeById(outputHighId); }

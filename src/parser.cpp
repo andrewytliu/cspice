@@ -38,29 +38,30 @@ void Parser::getRLC(const string& line) {
    string name;
    unsigned n1, n2;
    double value;
-   Element *element;
+   SmartPtr<Element> element;
    sin >> name >> n1 >> n2 >> value;
    // TODO: raise error
 
    switch(name[0]) {
       case 'R':
-         element = new Resistor(name, value);
+         element = SmartPtr<Element>(new Resistor(name, value));
          break;
       case 'L':
-         element = new Inductor(name, value);
+         element = SmartPtr<Element>(new Inductor(name, value));
          break;
       case 'C':
-         element = new Capacitor(name, value);
+         element = SmartPtr<Element>(new Capacitor(name, value));
          break;
       default:
          // TODO: raise error
          break ;
    }
 
-   Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
+   Node * node1 = circuit.getNodeById(n1);
+   Node * node2 = circuit.getNodeById(n2);
+
    node1->setConnect(node2, element);
    node2->setConnect(node1, element);
-   delete element ;
 }
 
 void Parser::getGm(const string& line) {
@@ -71,18 +72,20 @@ void Parser::getGm(const string& line) {
    sin >> name >> n1 >> n2 >> n3 >> n4 >> value;
    // TODO: raise error
 
-   Element *element = new VCCS(name, value);
-   Element *rev_element = new VCCS("R" + name, -value);
+   SmartPtr<Element> element(new VCCS(name, value)) ;
+   SmartPtr<Element> rev_element(new VCCS("R" + name, -value));
 
-   Node *node1 = circuit.getNodeById(n1), *node2 = circuit.getNodeById(n2);
-   Node *node3 = circuit.getNodeById(n3), *node4 = circuit.getNodeById(n4);
+   Node * node1 = circuit.getNodeById(n1);
+   Node * node2 = circuit.getNodeById(n2);
+   Node * node3 = circuit.getNodeById(n3);
+   Node * node4 = circuit.getNodeById(n4);
 
    node3->setConnect(node2, element);
    node3->setConnect(node1, rev_element);
    node4->setConnect(node1, element);
    node4->setConnect(node2, rev_element);
-}
 
+}
 
 void Parser::getPreset(const string& line) {
    stringstream sin(line , stringstream::in);

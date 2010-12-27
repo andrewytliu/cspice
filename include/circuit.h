@@ -14,20 +14,26 @@ class Connection ;
 /**  Class definitions **/
 
 enum InputType {
-   VIN,
+   UNDEFINE = -1,
+   VIN = 0,
    IIN
 };
 
 class Circuit {
 friend class Parser;
 public:
-   Node* getNodeById(unsigned id) { // consturct new node if not exist
-      return & nodes[getIndexById(id)] ;
-   }
+   Circuit() : nodes() , idMap() , inputHighId(0) , inputLowId(0) ,
+      outputHighId(0) , outputLowId(0) , inputType(UNDEFINE) { }
 
-   bool  checkCircuit() ;           // check floating node by DFS from GND
-   vector<vector<Element*> > enumTree(unsigned refNodeId) ; // list all the spanning tree of the
-                                          //current circuit.
+   ~Circuit() ;
+
+   Node * getNodeById(unsigned id) ; // consturct new node if not exist
+
+   bool  checkCircuit() ;            // check floating node by DFS from GND
+
+   // list all the spanning tree of the current circuit.
+   vector<vector<SmartPtr<Element> > > enumTree(unsigned refNodeId) ;
+
    Node * getInputHigh () { return getNodeById(inputHighId) ; }
    Node * getOutputHigh() { return getNodeById(outputHighId); }
    Node * getInputLow  () { return getNodeById(inputLowId)  ; }
@@ -38,32 +44,41 @@ public:
    unsigned getOutputLowId () { return outputLowId ; }
    InputType getInputType() const {return inputType ;}
 
-   void print(); // for debug purpose
+   void print() const ;
 
 private:
-   void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<Element*>&, vector<vector<Element*> >&) ;
+   void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
 
-   unsigned getIndexById(unsigned id) ;
+   unsigned getIndexById(unsigned id) ; // consturct new node if not exist
 
    InputType inputType ;
    unsigned inputHighId , inputLowId , outputHighId , outputLowId ;
-   //Node *input_high, *input_low, *output_high, *output_low ;
    map<unsigned, unsigned> idMap ; // mapping node id to index of nodes
-   vector<Node> nodes ;
+   vector<Node *> nodes ;
 };
 
-class Node {
+class Node : public SmartObj {
 public:
+   Node(const unsigned nodeId) : connections() , nodeId(nodeId) { }
+   Node(const Node& n) : nodeId(n.nodeId) , connections(n.connections) { }
+
    unsigned nodeId ; // used to identify
-   void setConnect(Node* destination, Element* element) ;
    vector<Connection> connections ;
+
+   void setConnect(const Node * destination,const SmartPtr<Element>& element) ;
+
 };
 
 class Connection {
 public:
-   Connection(Node* dest, Element* elem) : destination(dest), element(elem) {}
+   Connection(Node* dest, Element* elem) : destination(dest), element(elem) { }
+   Connection(const Node * dest, const SmartPtr<Element>& elem) : destination((Node *)dest) , element(elem) { }
+   Connection(const Connection& c) : destination(c.destination) , element(c.element) { }
+   Connection() : destination(NULL) , element(NULL) { }
+   ~Connection() { }
+
    Node * destination ;
-   Element * element ;
+   SmartPtr<Element> element ;
 };
 
 #endif /* __CIRCUIT_H__ */

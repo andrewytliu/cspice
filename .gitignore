@@ -1,4 +1,6 @@
 obj/*
+result/*
+testcase/*
 bin/*
 *.o
 *~

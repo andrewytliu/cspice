@@ -1,11 +1,26 @@
+#include <algorithm>
 #include <iostream>
 #include "element.h"
 #include "circuit.h"
 
 using namespace std ;
 
+template<class T>
+static void eliminate(int index , vector< T >& array) {
+   typedef typename std::vector<T>::iterator It;
+   for (It it = array.begin() ; it != array.end() ; it ++) {
+      if (index == 0) {
+         array.erase(it) ; break ;
+      } else {
+         -- index ;
+      }
+   }
+   return ;
+}
+
 void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
-      vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result) {
+      vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result,
+      vector<pair<char , string> >& trees) {
    // visited[i]  -> has nodes[i] been contained in the tree yet?
    // used[i][j]  -> has nodes[i].connections[j] been used yet?
    // elements    -> an array storing current tree edges
@@ -29,7 +44,7 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
                visited[v] = true ;
                used[v][i] = true ;
                elements.push_back(this->nodes[v]->connections[i].element) ;
-               this->dfs(size , visited , used , elements , result) ;
+               this->dfs(size , visited , used , elements , result , trees) ;
                elements.pop_back() ;
                visited[v] = false ;
             }
@@ -44,7 +59,44 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 
    if(done) {
-      result.push_back(elements) ;
+      // check if elimination could be done
+      char sign = 1;
+      int eliminateId ;
+      int amountOfElements = elements.size() ;
+      int amountOfTrees ;
+      string * names = new string[amountOfElements] ;
+      string concatName ;
+
+      for (int i = 0 ; i < amountOfElements ; ++ i) {
+         // if two elements only different in sign, they should have same formula.
+         // Ex: gm and -gm
+         names[i] = elements[i]->formula() ;
+         sign *= elements[i]->sign() ;
+      }
+      sort(names , names + amountOfElements) ;
+
+      concatName = "" ;
+      for (int i = 0 ; i < amountOfElements ; ++ i) {
+         concatName += names[i] ;
+      }
+
+      eliminateId = -1 ;
+      amountOfTrees = trees.size() ;
+      for (int i = 0 ; i < amountOfTrees ; ++ i) {
+         if (trees[i].first == -sign) {
+            if (trees[i].second == concatName) {
+               eliminateId = i ; break ;
+            }
+         }
+      }
+
+      if (eliminateId == -1) {
+         result.push_back(elements) ;
+         trees.push_back(pair<char , string>(sign , concatName)) ;
+      } else {
+         eliminate(eliminateId , result);
+         eliminate(eliminateId , trees) ;
+      }
    }
 }
 
@@ -58,6 +110,7 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
 
    vector<bool> visited(size , false) ;
    vector<vector<bool> > used(size) ;
+   vector<pair<char , string> > trees ; // pair of sign, element names
 
    for(int i = 0 ; i < size ; i ++) {
       int size_2 = this->nodes[i]->connections.size() ;
@@ -66,7 +119,7 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
 
    visited[refNodeIndex] = true ;
 
-   this->dfs(size, visited , used , elements , result) ;
+   this->dfs(size, visited , used , elements , result , trees) ;
 
    return result ;
 }
@@ -106,7 +159,7 @@ void Circuit::print() const {
       cout << "[" << nodes[i]->nodeId << "]" << endl;
       for(unsigned j = 0; j < nodes[i]->connections.size(); ++j)
          cout << " -> [" << nodes[i]->connections[j].destination->nodeId
-            << "] " << nodes[i]->connections[j].element->formula() << endl;
+            << "] " << nodes[i]->connections[j].element->name() << endl;
    }
 }
 

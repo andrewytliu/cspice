@@ -15,14 +15,18 @@ public:
    Element(const string& name, double value) :SmartObj(), _name(name), _value(value) {}
 
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
-   virtual string formula() const   = 0 ; // the formula of Y (admittance)
+   virtual string formula() const   = 0 ; // the formula of Y (admittance), without sign
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
-   virtual double value() const     = 0 ; // the admittance = s^(order()) * value()
+   virtual double value() const     = 0 ; // the admittance = s^(order()) * value() * sign()
    string name() const { return this->_name; }
 
    const Element * clone() const {
       this->SmartObj::clone() ;
       return this ;
+   }
+
+   virtual char sign() const {
+      return 1 ;
    }
 protected:
    double _value ;
@@ -38,7 +42,7 @@ public:
    }
 
    virtual string formula() const {
-      return "s * " + this->_name ;
+      return "  s" + this->_name + "  " ;
    }
 
    virtual int order() const {
@@ -59,7 +63,7 @@ public:
    }
 
    virtual string formula() const {
-      return "1 / (s * " + this->_name + ")" ;
+      return "1 / s" + this->_name ;
    }
 
    virtual int order() const {
@@ -80,7 +84,7 @@ public:
    }
 
    virtual string formula() const {
-      return "1 / " + this->_name ;
+      return "1 /  " + this->_name ;
    }
 
    virtual int order() const {
@@ -93,15 +97,17 @@ public:
 };
 
 class VCCS : public Element {
+protected:
+   char _sign ; // +1 for positive, -1 for negative
 public:
-   VCCS(const string name , double value) : Element(name, value) { }
+   VCCS(const string name , double value , char sign) : Element(name, value) , _sign(sign){ }
 
    virtual string type() const {
       return "Voltage Controlled Current Source" ;
    }
 
    virtual string formula() const {
-      return this->_name ;
+      return "   " + this->_name + "  " ;
    }
 
    virtual int order() const {
@@ -111,21 +117,28 @@ public:
    virtual double value() const {
       return this->_value ;
    }
+
+   virtual char sign() const {
+      return _sign ;
+   }
 };
 
 class Dummy : public Element {
+protected:
+   char _sign ; // +1 for positive, -1 for negative
 public:
-   Dummy(const string name , double value) : Element(name, value) { }
+   Dummy(const string name , char sign) : Element(name, 1.0), _sign(sign) { }
+
+   virtual char sign() const {
+      return _sign ;
+   }
 
    virtual string type() const {
       return "Dummy" ;
    }
 
    virtual string formula() const {
-      if (this->_value > 0) return "Dummy(+1)" ;
-      else if(this->_value < 0) return "Dummy(-1)" ;
-
-      return this->_name ;
+      return " Dummy " ;
    }
 
    virtual int order() const {
@@ -133,7 +146,7 @@ public:
    }
 
    virtual double value() const {
-      return this->_value ;
+      return 1.0 ;
    }
 };
 

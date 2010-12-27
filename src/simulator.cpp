@@ -45,7 +45,7 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 2. find den:
       //    a. add a dummy cell (value = 1) from input_high to input_low
-      iH->setConnect(iL , SmartPtr<Element>(new Dummy("Dummy element for DEN" , 1.0))) ;
+      iH->setConnect(iL , SmartPtr<Element>(new Dummy("Dummy element for DEN (+1)" , 1))) ;
       cout << "Print out DEN graph" << endl ;
       _circuit->print() ;
       //    b. get all spanning trees (input_low is the reference node)
@@ -54,9 +54,9 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 3. find num:
       //    a. add a dummy cell (value =-1) from input_high to output_high
-      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM" ,-1.0))) ;
+      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM (-1)" ,-1))) ;
       //    b. add a dummy cell (value = 1) from input_high to output_low
-      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM" , 1.0))) ;
+      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM (+1)" , 1))) ;
       cout << "Print out NUM graph" << endl ;
       _circuit->print() ;
       //    c. get all spanning trees (input_low is the reference node)
@@ -78,9 +78,9 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 3. find num:
       //    a. add a dummy cell (value =-1) from input_high to output_high
-      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM" ,-1.0))) ;
+      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM (-1)" ,-1))) ;
       //    b. add a dummy cell (value =+1) from input_high to output_low
-      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM" , 1.0))) ;
+      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM (+1)" , 1))) ;
       cout << "Print out DEN graph" << endl ;
       _circuit->print() ;
       //    c. get all spanning trees (input_low is the reference node)

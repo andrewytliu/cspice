@@ -47,7 +47,9 @@ public:
    void print() const ;
 
 private:
-   void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
+   void dfs(int, vector<bool>&, vector<vector<bool> >&,
+         vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&,
+         vector<pair<char , string> >&) ;
 
    unsigned getIndexById(unsigned id) ; // consturct new node if not exist
 

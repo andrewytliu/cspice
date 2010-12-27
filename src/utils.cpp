@@ -13,15 +13,19 @@ void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostrea
 
    for(int i = 0 ; i < sizeOfCollection ; ++ i) {
       int amountOfElements = collection[i].size() ;
+      string line = "" ;
+      char sign = 1 ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
          //if (collection[i][j]->type() != "Dummy") {
-            fout << "(" << collection[i][j]->formula() << ") " ;
+            line += "(" + collection[i][j]->formula() + ") " ;
+            sign *= collection[i][j]->sign() ;
          //}
       }
-      if(i != sizeOfCollection - 1) {
-         fout << "+" << endl ;
+      if (sign == 1) {
+         if (i > 0)  fout << " + " << line << endl ;
+         else        fout << "   " << line << endl ;
       } else {
-         fout << endl ;
+         fout << " - " << line << endl ;
       }
    }
 }
@@ -44,7 +48,7 @@ vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> 
       int amountOfElements = collection[i].size() ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
          //if (collection[i][j]->type() != "Dummy") {
-            value *= collection[i][j]->value() ;
+            value *= collection[i][j]->value() * collection[i][j]->sign() ;
             order += collection[i][j]->order() ;
          //}
       }

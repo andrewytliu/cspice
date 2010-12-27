@@ -77,8 +77,8 @@ void Parser::getGm(const string& line) {
       // TODO: raise error
    }
 
-   SmartPtr<Element> element(new VCCS(name, value)) ;
-   SmartPtr<Element> rev_element(new VCCS("R" + name, -value));
+   SmartPtr<Element> element(new VCCS(name, value , 1)) ;
+   SmartPtr<Element> rev_element(new VCCS(name, value , -1));
 
    Node * node1 = circuit.getNodeById(n1);
    Node * node2 = circuit.getNodeById(n2);

@@ -88,10 +88,13 @@ int SmartObj::addRefAmount(const void* ptr, int delta) {
 }
 
 void SmartObj::print() {
+   int amount = 0 ;
    cout << "========= SmartObj::print() =========" << endl ;
    for(map<const void* , int>::const_iterator it = SmartObj::mapping.begin() ;
          it != SmartObj::mapping.end() ; it ++) {
       cout << (*it).first << "\t => \t" << (*it).second << endl ;
+      amount ++ ;
    }
+   cout << "There are " << amount << " pointers in the mapping" << endl ;
 }
 

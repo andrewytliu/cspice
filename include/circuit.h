@@ -57,7 +57,7 @@ private:
    vector<Node *> nodes ;
 };
 
-class Node : public SmartObj {
+class Node {
 public:
    Node(const unsigned nodeId) : connections() , nodeId(nodeId) { }
    Node(const Node& n) : nodeId(n.nodeId) , connections(n.connections) { }

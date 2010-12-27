@@ -32,7 +32,6 @@ class SmartPtr {
    T * ptr ;
    public :
    explicit SmartPtr(const T* p = NULL) {
-      cout << "[" << __func__ << "] p = " << p << endl ;
       if(p != NULL) {
          ptr = (T *) p->clone() ;
       } else {
@@ -41,13 +40,11 @@ class SmartPtr {
    }
 
    SmartPtr(const SmartPtr& p) {
-      cout << "[" << __func__ << "] p.ptr = " << p.ptr << endl ;
       this->ptr = NULL ;
       (*this) = p ;
    }
 
    ~SmartPtr() {
-      cout << "[" << __func__ << "]" << endl ;
       if(this->ptr != NULL) {
          this->release() ;
       }
@@ -57,7 +54,6 @@ class SmartPtr {
    T* operator->() {return  ptr;}
 
    SmartPtr& operator= (const SmartPtr& rhs) {
-      cout << "[" << __func__ << "(SmartPtr&)]" << endl ;
       if(this->ptr != NULL) {
          this->release() ;
       }
@@ -91,3 +87,4 @@ class SmartPtr {
 } ;
 
 #endif /* __SMARTOBJ_H__ */
+

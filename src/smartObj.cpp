@@ -10,7 +10,6 @@ SmartObj::SmartObj() {
 }
 
 SmartObj::~SmartObj() {
-   cout << "[" << __func__ << "]" << endl ;
    int amount = SmartObj::getRefAmount(this) ;
    if (amount < 0) {
       // TODO make an exception class for this exception
@@ -21,13 +20,11 @@ SmartObj::~SmartObj() {
 
 const SmartObj * SmartObj::clone() const {
    int amount = SmartObj::addRefAmount(this , 1) ;
-   cout << "[SmartObj::" << __func__ << "(this = " << this << ")] Now amount increase to " << amount << endl ;
    return this;
 }
 
 void* SmartObj::operator new(size_t size) {
    void * p = malloc(size * sizeof(char));
-   cout << "Allocate memory size " << size << ", Addr = " << p << endl ;
    SmartObj::setRefAmount(p , 0) ;
    return p ;
 }
@@ -40,7 +37,6 @@ void SmartObj::operator delete(void* ptr) {
       cerr << "[" << __func__ << "] Reference handling error! (_ref = " << amount << ")" << endl ;
       throw "Reference handling error!" ;
    }
-   cout << "[" << __func__ << "] Deleting ptr = " << ptr << endl ;
    /* first, remove ptr from mapping */
    SmartObj::mapping.erase(ptr) ;
    free(ptr);
@@ -50,7 +46,6 @@ void SmartObj::operator delete(void* ptr) {
 void SmartObj::release() {
    //-- this->_ref;
    int amount = SmartObj::addRefAmount(this ,-1) ;
-   cout << "[" << __func__ << " (this = " << this << ")] Now amount decrease to " << amount << endl ;
 }
 
 int SmartObj::getRefAmount(const void* ptr) {
@@ -99,3 +94,4 @@ void SmartObj::print() {
       cout << (*it).first << "\t => \t" << (*it).second << endl ;
    }
 }
+

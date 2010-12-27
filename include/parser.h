@@ -16,10 +16,6 @@ public:
    Circuit& getCircuit() { return circuit; }
    vector<SimulateConfig>& getConfig() { return config; }
 
-   ~Parser() {
-      cout << "[" << __func__ << "]" << endl ;
-   }
-
 private:
    void getRLC(const string& line);
    void getGm(const string& line);

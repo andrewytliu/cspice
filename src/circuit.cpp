@@ -97,6 +97,8 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
          eliminate(eliminateId , result);
          eliminate(eliminateId , trees) ;
       }
+
+      delete [] names ;
    }
 }
 

@@ -12,7 +12,7 @@ using namespace std;
 class Element : public SmartObj {
 public:
    friend class SmartPtr<Element> ;
-   Element(string name, double value) :SmartObj(), _name(name), _value(value) {}
+   Element(const string& name, double value) :SmartObj(), _name(name), _value(value) {}
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
    virtual string formula() const   = 0 ; // the formula of Y (admittance)
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
@@ -31,7 +31,7 @@ protected:
 
 class Capacitor : public Element {
 public:
-   Capacitor(string name , double value) : Element(name, value) { }
+   Capacitor(const string& name , double value) : Element(name, value) { }
 
    virtual string type() const {
       return "Capacitor" ;
@@ -52,7 +52,7 @@ public:
 
 class Inductor : public Element {
 public:
-   Inductor(string name , double value) : Element(name, value) { }
+   Inductor(const string& name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Inductor" ;
    }
@@ -62,7 +62,7 @@ public:
    }
 
    virtual int order() const {
-      return 0;
+      return -1;
    }
 
    virtual double value() const {
@@ -72,7 +72,7 @@ public:
 
 class Resistor : public Element {
 public:
-   Resistor(string name , double value) : Element(name, value) { }
+   Resistor(const string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Resistor" ;
    }
@@ -92,7 +92,7 @@ public:
 
 class VCCS : public Element {
 public:
-   VCCS(string name , double value) : Element(name, value) { }
+   VCCS(const string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Voltage Controlled Current Source" ;
    }
@@ -112,7 +112,7 @@ public:
 
 class Dummy : public Element {
 public:
-   Dummy(string name , double value) : Element(name, value) { }
+   Dummy(const string name , double value) : Element(name, value) { }
    virtual string type() const {
       return "Dummy" ;
    }

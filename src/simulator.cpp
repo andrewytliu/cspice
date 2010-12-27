@@ -20,6 +20,8 @@ Simulator::Simulator(Circuit * circuit) : _circuit(circuit) {
 }
 
 void Simulator::findFormula(vector<double>& num, vector<double>& den) {
+   cerr << "Not done yet!" << endl ;
+   throw "Not done yet!" ;
    vector<pair<int , double> > tmp_den ;
    vector<pair<int , double> > tmp_num ;
    if (_circuit->getInputType() == VIN) {

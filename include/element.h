@@ -1,20 +1,29 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
-#include "smartObj.h"
 #include <string>
+#include <iostream>
+
+#include "smartObj.h"
 using namespace std;
 /*
  * This is the base type of Resistor, Capacitor, Inductor
  */
 class Element : public SmartObj {
 public:
-   Element(string name, double value) : SmartObj(), _name(name), _value(value) {}
+   friend class SmartPtr<Element> ;
+   Element(string name, double value) :SmartObj(), _name(name), _value(value) {}
    virtual string type() const      = 0 ; // nothing special, might be used when debugging
    virtual string formula() const   = 0 ; // the formula of Y (admittance)
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
    virtual double value() const     = 0 ; // the admittance = s^(order()) * value()
    string name() const { return this->_name; }
+
+   const Element * clone() const {
+      this->SmartObj::clone() ;
+      cout << "[Element::" << __func__ << "]" << " return this = " << this << endl ;
+      return this ;
+   }
 protected:
    double _value ;
    string _name ;

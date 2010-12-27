@@ -3,7 +3,6 @@
 #include "element.h"
 
 Parser::Parser(ifstream& fin) {
-   //string line;
    char line[1024] ;
    while(true) {
       fin.getline(line , 1024); // this can only use "char *" as argument
@@ -41,6 +40,9 @@ void Parser::getRLC(const string& line) {
    SmartPtr<Element> element;
    sin >> name >> n1 >> n2 >> value;
    // TODO: raise error
+   if(n1 == n2) {
+      // TODO: raise error
+   }
 
    switch(name[0]) {
       case 'R':
@@ -71,6 +73,9 @@ void Parser::getGm(const string& line) {
    double value;
    sin >> name >> n1 >> n2 >> n3 >> n4 >> value;
    // TODO: raise error
+   if(n1 == n3 && n2 == n4) {
+      // TODO: raise error
+   }
 
    SmartPtr<Element> element(new VCCS(name, value)) ;
    SmartPtr<Element> rev_element(new VCCS("R" + name, -value));
@@ -80,11 +85,10 @@ void Parser::getGm(const string& line) {
    Node * node3 = circuit.getNodeById(n3);
    Node * node4 = circuit.getNodeById(n4);
 
-   node3->setConnect(node2, element);
-   node3->setConnect(node1, rev_element);
-   node4->setConnect(node1, element);
-   node4->setConnect(node2, rev_element);
-
+   if(n3 != n2) node3->setConnect(node2, element);
+   if(n3 != n1) node3->setConnect(node1, rev_element);
+   if(n4 != n1) node4->setConnect(node1, element);
+   if(n4 != n2) node4->setConnect(node2, rev_element);
 }
 
 void Parser::getPreset(const string& line) {

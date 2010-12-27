@@ -62,11 +62,10 @@ public:
    Node(const unsigned nodeId) : connections() , nodeId(nodeId) { }
    Node(const Node& n) : nodeId(n.nodeId) , connections(n.connections) { }
 
-   unsigned nodeId ; // used to identify
-   vector<Connection> connections ;
-
    void setConnect(const Node * destination,const SmartPtr<Element>& element) ;
 
+   unsigned nodeId ; // used to identify
+   vector<Connection> connections ;
 };
 
 class Connection {

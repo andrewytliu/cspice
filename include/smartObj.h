@@ -19,6 +19,7 @@ public:
    static int getRefAmount(const void*);
    static int setRefAmount(const void* , int);
    static int addRefAmount(const void* , int);
+   static void print() ;
 protected:
    //mutable int _ref;
 private:
@@ -77,6 +78,7 @@ class SmartPtr {
 */
    const T& operator* () const {return *ptr;}
    const T* operator->() const {return  ptr;}
+
    private:
    void release() {
       if(this->ptr != NULL) {

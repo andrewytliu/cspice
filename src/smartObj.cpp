@@ -41,6 +41,8 @@ void SmartObj::operator delete(void* ptr) {
       throw "Reference handling error!" ;
    }
    cout << "[" << __func__ << "] Deleting ptr = " << ptr << endl ;
+   /* first, remove ptr from mapping */
+   SmartObj::mapping.erase(ptr) ;
    free(ptr);
    return;
 }
@@ -88,4 +90,12 @@ int SmartObj::addRefAmount(const void* ptr, int delta) {
       amount = ((*it).second += delta) ;
    }
    return amount ;
+}
+
+void SmartObj::print() {
+   cout << "========= SmartObj::print() =========" << endl ;
+   for(map<const void* , int>::const_iterator it = SmartObj::mapping.begin() ;
+         it != SmartObj::mapping.end() ; it ++) {
+      cout << (*it).first << "\t => \t" << (*it).second << endl ;
+   }
 }

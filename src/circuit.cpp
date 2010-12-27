@@ -76,7 +76,7 @@ unsigned Circuit::getIndexById(unsigned id) {
    if(it == idMap.end()) {
       // node not exist
       unsigned index = nodes.size() ;
-      nodes.push_back(SmartPtr<Node>(new Node(id))) ;
+      nodes.push_back(new Node(id)) ;
       //cout << "[" << __func__ << "] Size of connections = " << nodes[index].connections.size() << endl ;
       //cout << "[" << __func__ << "] Insert new Node, index = " << index << endl ;
       idMap.insert(pair<unsigned , unsigned>(id , index)) ;
@@ -87,20 +87,29 @@ unsigned Circuit::getIndexById(unsigned id) {
    }
 }
 
-SmartPtr<Node> Circuit::getNodeById(unsigned id) { // consturct new node if not exist
+Node * Circuit::getNodeById(unsigned id) { // consturct new node if not exist
    unsigned index = getIndexById(id) ;
    //cout << "[" << __func__ << "] id(" << id << ") => (" << index << "), ID = " << nodes[index].nodeId << endl ;
    return (nodes[index]) ;
 }
 
-void Node::setConnect(const SmartPtr<Node>& dest, const SmartPtr<Element>& element) {
+void Node::setConnect(const Node * dest, const SmartPtr<Element>& element) {
    cout << "[" << __func__ << "]" << " Setting up connection " << this->nodeId << " -> " << dest->nodeId << " Element = " << element->name() << endl ;
    cout << "[" << __func__ << "] Size of connections = " << this->connections.size() << endl ;
    //element->clone() ;
    this->connections.push_back(Connection(dest , element)) ;
 }
 
-Connection::Connection(const SmartPtr<Node>& dest ,const SmartPtr<Element>& elem) : destination(dest) , element(elem) {
+Circuit::~Circuit() {
+   cout << "[" << __func__ << "]" << endl ;
+   //nodes.resize(0) ;
+   int size = nodes.size() ;
+   for(int i = 0 ; i < size ; ++ i) {
+      delete nodes[i] ;
+   }
+}
+
+Connection::Connection(const Node * dest ,const SmartPtr<Element>& elem) : destination((Node *)dest) , element(elem) {
    cout << "[" << __func__ << "] Cloning " << elem->name() << " (" << elem->type() << "), addr = " << elem.ptr << endl ;
    //this->element = elem ;
 }
@@ -112,4 +121,15 @@ Connection::~Connection() {
 
 Node::Node(const unsigned id) : connections() , nodeId(id) {
    cout << "[" << __func__ << "] nodeId = " << this->nodeId << endl ;
+}
+
+void Circuit::print() const {
+   int size = nodes.size() ;
+   cout << "===== Circuit Detail =====" << endl;
+   for(unsigned i = 0; i < size ; ++i) {
+      cout << "[" << nodes[i]->nodeId << "]" << endl;
+      for(unsigned j = 0; j < nodes[i]->connections.size(); ++j)
+         cout << " -> [" << nodes[i]->connections[j].destination->nodeId
+            << "] " << nodes[i]->connections[j].element->formula() << endl;
+   }
 }

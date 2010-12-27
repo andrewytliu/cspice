@@ -25,7 +25,9 @@ public:
    Circuit() : nodes() , idMap() , inputHighId(0) , inputLowId(0) ,
       outputHighId(0) , outputLowId(0) , inputType(UNDEFINE) { }
 
-   SmartPtr<Node> getNodeById(unsigned id) ; // consturct new node if not exist
+   ~Circuit() ;
+
+   Node * getNodeById(unsigned id) ; // consturct new node if not exist
 
    // Node* getGnd() { return getNodeById(0); }
 
@@ -34,16 +36,17 @@ public:
    // list all the spanning tree of the current circuit.
    vector<vector<SmartPtr<Element> > > enumTree(unsigned refNodeId) ;
 
-   SmartPtr<Node> getInputHigh () { return getNodeById(inputHighId) ; }
-   SmartPtr<Node> getOutputHigh() { return getNodeById(outputHighId); }
-   SmartPtr<Node> getInputLow  () { return getNodeById(inputLowId)  ; }
-   SmartPtr<Node> getOutputLow () { return getNodeById(outputLowId) ; }
+   Node * getInputHigh () { return getNodeById(inputHighId) ; }
+   Node * getOutputHigh() { return getNodeById(outputHighId); }
+   Node * getInputLow  () { return getNodeById(inputLowId)  ; }
+   Node * getOutputLow () { return getNodeById(outputLowId) ; }
    unsigned getInputHighId () { return inputHighId ; }
    unsigned getOutputHighId() { return outputHighId; }
    unsigned getInputLowId  () { return inputLowId  ; }
    unsigned getOutputLowId () { return outputLowId ; }
    InputType getInputType() const {return inputType ;}
 
+   void print() const ;
 private:
    void dfs(int, vector<bool>&, vector<vector<bool> >&, vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
 
@@ -53,7 +56,7 @@ private:
    unsigned inputHighId , inputLowId , outputHighId , outputLowId ;
    //Node *input_high, *input_low, *output_high, *output_low ;
    map<unsigned, unsigned> idMap ; // mapping node id to index of nodes
-   vector<SmartPtr<Node> > nodes ;
+   vector<Node *> nodes ;
 };
 
 class Node : public SmartObj {
@@ -66,20 +69,21 @@ public:
    unsigned nodeId ; // used to identify
    vector<Connection> connections ;
 
-   void setConnect(const SmartPtr<Node>& destination,const SmartPtr<Element>& element) ;
+   void setConnect(const Node * destination,const SmartPtr<Element>& element) ;
 
    ~Node() {
       // do nothing, just log
       cout << "[" << __func__ << "]" << endl ;
+      //connections = vector<Connection>() ;
    }
 };
 
 class Connection {
 public:
-   SmartPtr<Node> destination ;
+   Node * destination ;
    SmartPtr<Element> element ;
 
-   Connection(const SmartPtr<Node>& , const SmartPtr<Element>&) ;
+   Connection(const Node * , const SmartPtr<Element>&) ;
    Connection(const Connection& c) : destination(c.destination) , element(c.element) {
       cout << "[" << __func__ << " (Copy constructor)]" << endl ;
    }

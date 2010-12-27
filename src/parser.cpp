@@ -61,8 +61,8 @@ void Parser::getRLC(const string& line) {
    }
 
    cout << "done" << endl ;
-   SmartPtr<Node> node1 = circuit.getNodeById(n1);
-   SmartPtr<Node> node2 = circuit.getNodeById(n2);
+   Node * node1 = circuit.getNodeById(n1);
+   Node * node2 = circuit.getNodeById(n2);
 
    node1 = circuit.getNodeById(n1);
    node2 = circuit.getNodeById(n2);
@@ -85,10 +85,10 @@ void Parser::getGm(const string& line) {
    SmartPtr<Element> element(new VCCS(name, value)) ;
    SmartPtr<Element> rev_element(new VCCS("R" + name, -value));
 
-   SmartPtr<Node> node1 = circuit.getNodeById(n1);
-   SmartPtr<Node> node2 = circuit.getNodeById(n2);
-   SmartPtr<Node> node3 = circuit.getNodeById(n3);
-   SmartPtr<Node> node4 = circuit.getNodeById(n4);
+   Node * node1 = circuit.getNodeById(n1);
+   Node * node2 = circuit.getNodeById(n2);
+   Node * node3 = circuit.getNodeById(n3);
+   Node * node4 = circuit.getNodeById(n4);
 
    node3->setConnect(node2, element);
    node3->setConnect(node1, rev_element);

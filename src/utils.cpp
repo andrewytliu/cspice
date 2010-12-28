@@ -16,10 +16,10 @@ void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostrea
       string line = "" ;
       char sign = 1 ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
-         //if (collection[i][j]->type() != "Dummy") {
+         if (collection[i][j]->type() != "Dummy") {
             line += "(" + collection[i][j]->formula() + ") " ;
-            sign *= collection[i][j]->sign() ;
-         //}
+         }
+         sign *= collection[i][j]->sign() ;
       }
       if (sign == 1) {
          if (i > 0)  fout << " + " << line << endl ;

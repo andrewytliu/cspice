@@ -116,7 +116,9 @@ void Simulator::simulate(SimulateConfig& config) {
    vector<double> num ;
    vector<double> den ;
    this->findFormula(num , den) ;
-   /* DEBUG: Print out transfer function */
+   /*
+   // DEBUG: Print out transfer function
+   cout << "======== Transfer Function ========" << endl ;
    cout << "Den\torder\tvalue" << endl ;
    for (int i = 0 ; i < den.size() ; ++ i) {
       cout << "\t" << i << "\t" << den[i] << endl ;
@@ -125,28 +127,94 @@ void Simulator::simulate(SimulateConfig& config) {
    for (int i = 0 ; i < num.size() ; ++ i) {
       cout << "\t" << i << "\t" << num[i] << endl ;
    }
-   /**************************************/
+   // ************************************** //
+   */
 
    // TODO complete the rest part of simulation
 
    if (config.type == FREQ) {
       /* TODO decide the detail behavior */
-      // Now I just evaluate the values and print them out, 
+      // Now I just evaluate the values and print them out,
       // need to decide what should we do after evaluate.
       cout << "======== FREQ ========" << endl ;
       vector<pair<double,complex<double> > > result ;
       double ratio = exp(log(10.0) / config.step) ;
+
       for (double freq = config.start ; freq <= config.end ; freq *= ratio) {
          result.push_back(pair<double , complex<double> >(freq , evalFormula(num , freq) / evalFormula(den , freq))) ;
          /* DEBUG: Print out these values */
-         cout << scientific << right << setw(15) << setprecision(3) // freq
+         cout << scientific << right << setw(15) << setprecision(6) // freq
             << result.back().first ;
-         cout << scientific << right << setw(15) << setprecision(3) // amplitude in dB
+         cout << scientific << right << setw(15) << setprecision(6) // amplitude in dB
             << 20.0 * log10(abs(result.back().second)) ;
-         cout << fixed      << right << setw(15) << setprecision(3) // phase in degree
+         cout << fixed      << right << setw(15) << setprecision(6) // phase in degree
             << arg(result.back().second) * 180.0 / acos(-1.0) << endl ;
          /*********************************/
       }
-      // Now values are pairs of freq and value.
+      // Now result are pairs of freq and value.
+      // End of simulating freq. domain response.
+   } else if (config.type == TIME) {
+      cout << "======== TIME ========" << endl ;
+      // this is for unit step response, that is,
+      // In[t] = 1.0 for t >= 0
+      //
+      // for convenient, make Num and Den have save size.
+      int N = max(den.size() , num.size()) ;
+      vector<pair<double , double> > result ;// pair of time and value
+
+      num.resize(N , 0.0) ;
+      den.resize(N , 0.0) ;
+
+      double * newU = new double[N] ; // u[k][t + 1]
+      double * oldU = new double[N] ; // u[k][t]
+      double DEN , step ;
+
+      DEN = 0.0 ;
+      for (int k = 0 ; k < N ; ++ k) {
+         DEN = DEN * (config.step / 2.0) + den[k] ;
+      }
+
+      // Initialize
+      for (int i = 0 ; i < N ; ++ i) {
+         newU[i] = oldU[i] = 0 ;
+      }
+      oldU[0] = 1.0 / den[N - 1] ;
+
+      //step = config.step / (N * 1e3); // Real time step is (config.step / (N * 1e3))
+      step = config.step / (N << 10); // Real time step is (config.step / (N * 1e3))
+
+      for (double time = config.start + config.step ; time <= config.end ; time += config.step) {
+         for(int i = 0 ; i < (N << 10) ; ++ i) { // Real time step is (config.step / (N * 1e3))
+            double sum1 , sum2 ;
+
+            newU[0] = 0.0 ;
+            sum1 = oldU[0] * (step / 2.0) ;
+            sum2 = 0.0 ;
+            for (int k = 1 ; k < N ; ++ k) {
+               sum2 = sum2 * (step / 2.0)  + oldU[k] ;
+               newU[0] += den[N - k - 1] * (sum1 + sum2) ;
+               sum1 = (step / 2.0) * (sum1 + oldU[k]) ;
+            }
+            newU[0] = (1.0 - newU[0]) / DEN ;
+
+            for (int k = 1 ; k < N ; ++ k) {
+               newU[k] = oldU[k] + (step / 2.0) * (oldU[k - 1] + newU[k - 1]) ;
+            }
+            for (int k = 0 ; k < N ; ++ k) {
+               oldU[k] = newU[k] ;
+            }
+         }
+         double out = 0.0 ;
+         for (int k = 0 ; k < N ; ++ k) {
+            out += num[N - k - 1] * newU[k] ;
+         }
+
+         cout << setw(15) << right << time << "\t" << setw(15) << right << out << endl ;
+         result.push_back(pair<double , double>(time , out)) ;
+      }
+
+      delete [] newU ;
+      delete [] oldU ;
+      // End of simulating time domain response.
    }
 }

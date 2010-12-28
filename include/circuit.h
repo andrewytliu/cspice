@@ -23,8 +23,8 @@ enum InputType {
 class Circuit {
 friend class Parser;
 public:
-   Circuit() : nodes() , idMap() , inputHighId(0) , inputLowId(0) ,
-      outputHighId(0) , outputLowId(0) , inputType(UNDEFINE) { }
+   Circuit() : inputType(UNDEFINE) , inputHighId(0) , inputLowId(0) ,
+      outputHighId(0) , outputLowId(0) , idMap() , nodes() { }
 
    ~Circuit() ;
 
@@ -51,7 +51,7 @@ private:
 #ifdef __ELIMINATION__
    void dfs(int, vector<bool>&, vector<vector<bool> >&,
          vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&,
-         vector<pair<char , string> >&) ;
+         vector<pair<char , unsigned long> >&) ;
 #else // __ELIMINATION__
    void dfs(int, vector<bool>&, vector<vector<bool> >&,
          vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
@@ -67,7 +67,7 @@ private:
 
 class Node {
 public:
-   Node(const unsigned nodeId) : connections() , nodeId(nodeId) { }
+   Node(const unsigned nodeId) : nodeId(nodeId), connections(){ }
    Node(const Node& n) : nodeId(n.nodeId) , connections(n.connections) { }
 
    void setConnect(const Node * destination,const SmartPtr<Element>& element) ;

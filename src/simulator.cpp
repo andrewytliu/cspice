@@ -24,8 +24,9 @@ static void store(const vector<pair<int , double> >& mapping,
    return ;
 }
 
-Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(f) {
+Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(f) , num() , den() {
    // _circuit is a pointer
+   findFormula(this->num , this->den) ;
 }
 
 void Simulator::findFormula(vector<double>& num, vector<double>& den) {
@@ -89,6 +90,7 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
    // DEBUG: print out formula
    cout << "======== Print out Den Trees ========" << endl ;
    printFormula(denSpanningTrees , cout) ;
+   cout << endl ;
    cout << "======== Print out Num Trees ========" << endl ;
    printFormula(numSpanningTrees , cout) ;
    cout << endl ;
@@ -113,9 +115,9 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
 
 void Simulator::simulate(SimulateConfig& config) {
    // first, find out the formula of circuit
-   vector<double> num ;
-   vector<double> den ;
-   this->findFormula(num , den) ;
+   // vector<double> num ;
+   // vector<double> den ;
+   // this->findFormula(num , den) ;
 
    if (config.type == FREQ) {
       vector<pair<double,complex<double> > > result ;

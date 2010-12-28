@@ -1,5 +1,6 @@
 CXX       = g++
-CFLAGS    = -g -Iinclude
+#CFLAGS    = -g -Iinclude
+CFLAGS	 = -O3 -Iinclude -Wall
 CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
 #COBJS     = $(addsuffix .o, $(basename $(CSRCS)))

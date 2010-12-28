@@ -1,25 +1,25 @@
 #include <iostream>
+#include <sstream>
 #include "smartObj.h"
 
 using namespace std ;
 
 map<const void* , int> SmartObj::mapping ;
 
-SmartObj::SmartObj() {
-   //_ref = 1;
-}
+SmartObj::SmartObj() { }
 
 SmartObj::~SmartObj() {
    int amount = SmartObj::getRefAmount(this) ;
    if (amount < 0) {
-      // TODO make an exception class for this exception
-      cerr << "[" << __func__ << "]" << "Reference handling error! (amount = " << amount << ")" << endl ;
-      throw "Error for reference amount handling" ;
+      stringstream msgBuffer ;
+      msgBuffer << "Error for reference amount handling (amount = " << amount << ")" ;
+
+      throw SmartObjException(msgBuffer.str()) ;
    }
 }
 
 const SmartObj * SmartObj::clone() const {
-   int amount = SmartObj::addRefAmount(this , 1) ;
+   SmartObj::addRefAmount(this , 1) ;
    return this;
 }
 
@@ -34,27 +34,30 @@ void SmartObj::operator delete(void* ptr) {
    int amount = SmartObj::getRefAmount(ptr) ;
    //int amount = obj->_ref ;
    if(amount != 0) {
-      cerr << "[" << __func__ << "] Reference handling error! (_ref = " << amount << ")" << endl ;
-      throw "Reference handling error!" ;
+      stringstream msgBuffer ;
+      msgBuffer << "Error for reference amount handling (amount = " << amount << ")" ;
+
+      throw SmartObjException(msgBuffer.str()) ;
    }
    /* first, remove ptr from mapping */
    SmartObj::mapping.erase(ptr) ;
+   /* second, release resource */
    free(ptr);
    return;
 }
 
 void SmartObj::release() {
-   //-- this->_ref;
-   int amount = SmartObj::addRefAmount(this ,-1) ;
+   SmartObj::addRefAmount(this ,-1) ;
 }
 
 int SmartObj::getRefAmount(const void* ptr) {
    map<const void* , int>::const_iterator it = SmartObj::mapping.find(ptr) ;
    int amount ;
    if (it == SmartObj::mapping.end()) {
-      cerr << "ptr = " << ptr << " is not in SmartObj::mapping" << endl ;
-      throw "invalid pointer" ;
-      // SmartObj::mapping.insert(pair<void* , int>(ptr , amount = 0)) ;
+      // generate error message
+      stringstream msgBuffer ;
+      msgBuffer << "Invalid pointer (ptr = " << ptr << " is not in SmartObj::mapping)" ;
+      throw SmartObjException(msgBuffer.str()) ;
    } else {
       amount = (*it).second ;
    }
@@ -63,14 +66,6 @@ int SmartObj::getRefAmount(const void* ptr) {
 
 int SmartObj::setRefAmount(const void* ptr, int amount) {
    SmartObj::mapping[ptr] = amount ;
-   /*
-   map<void* , int>::iterator it = SmartObj::mapping.find(ptr) ;
-   if (it == SmartObj::mapping.end()) {
-      SmartObj::mapping.insert(pair<void* , int>(ptr , amount = 0)) ;
-   } else {
-      amount = (*it).second ;
-   }
-   */
    return amount ;
 }
 
@@ -78,9 +73,11 @@ int SmartObj::addRefAmount(const void* ptr, int delta) {
    map<const void* , int>::iterator it = SmartObj::mapping.find(ptr) ;
    int amount ;
    if (it == SmartObj::mapping.end()) {
-      cerr << "ptr = " << ptr << " is not in SmartObj::mapping" << endl ;
-      throw "invalid pointer" ;
-      // SmartObj::mapping.insert(pair<void* , int>(ptr , amount = 0)) ;
+      // generate error message
+      stringstream msgBuffer ;
+      msgBuffer << "Invalid pointer (ptr = " << ptr << " is not in SmartObj::mapping)" ;
+
+      throw SmartObjException(msgBuffer.str()) ;
    } else {
       amount = ((*it).second += delta) ;
    }
@@ -97,4 +94,3 @@ void SmartObj::print() {
    }
    cout << "There are " << amount << " pointers in the mapping" << endl ;
 }
-

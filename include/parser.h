@@ -27,9 +27,11 @@ private:
 };
 
 class ParseError {
+private:
+   string _message;
 public:
-   ParseError(const string& msg) : message(msg) { }
-   string message;
+   ParseError(const string& msg) : _message(msg) { }
+   const char * message() { return _message.c_str() ; }
 };
 
 #endif /* __PARSER_H__ */

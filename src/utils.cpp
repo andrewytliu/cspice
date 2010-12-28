@@ -1,7 +1,7 @@
+#include <iomanip>
 #include <iostream>
 #include <vector>
 #include <complex>
-//#include <cmalloc>
 #include <cstdlib>
 #include <cmath>
 #include "element.h"
@@ -92,3 +92,33 @@ complex<double> evalFormula(const vector<double>& coefficients,const double& fre
    return complex<double>(real , image) ;
 }
 
+ostream& operator<<(ostream& out , const Element& element) {
+   out << setw(5) << left << element._name
+      << setw(10) << setprecision(3) << right << scientific << element._value ;
+
+   return out ;
+}
+
+unsigned long hash(const char* p) {
+   // using sdbm hash algorithm
+   unsigned long result = 0;
+   const unsigned char * str = (const unsigned char *)p ;
+   int c;
+   while ((c = (*(str++))))
+      result = c + (result << 6) + (result << 16) - result;
+
+   return result;
+}
+
+unsigned long hash(const vector<unsigned long>& array) {
+   // using FNV-1 hash algorithm
+   unsigned long result = 14695981039346656037ul ;
+   for (vector<unsigned long>::const_iterator it = array.begin() ; it < array.end() ; ++ it) {
+      result *= 1099511628211ul ;
+      result ^= (*it) ;
+   }
+
+   result *= 1099511628211ul ;
+   result ^= array.size() ;
+   return result ;
+}

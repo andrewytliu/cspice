@@ -1,7 +1,9 @@
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include "element.h"
 #include "circuit.h"
+#include "utils.h"
 
 using namespace std ;
 #ifdef __ELIMINATION__
@@ -22,7 +24,7 @@ static void eliminate(int index , vector< T >& array) {
 #ifdef __ELIMINATION__
 void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
       vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result,
-      vector<pair<char , string> >& trees)
+      vector<pair<char , unsigned long> >& trees)
 #else
 void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
       vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result)
@@ -70,47 +72,45 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 
    if(done) {
+      // check if really done, that is, all nodes are visited
+      for (int i = 0 ; i < size ; ++ i) {
+         if (visited[i] != true) {
+            return ;
+         }
+      }
 #ifdef __ELIMINATION__
       // check if elimination could be done
       char sign = 1;
       int eliminateId ;
       int amountOfElements = elements.size() ;
       int amountOfTrees ;
-      string * names = new string[amountOfElements] ;
+      unsigned long hashValue = 14695981039346656037ul ;
+
       string concatName ;
 
       for (int i = 0 ; i < amountOfElements ; ++ i) {
          // if two elements only different in sign, they should have same formula.
          // Ex: gm and -gm
-         names[i] = elements[i]->formula() ;
+         // use + , since it's commutative, that is, the order of elements doesn't matter.
+         hashValue += hash(elements[i]->formula().c_str()) ;
          sign *= elements[i]->sign() ;
-      }
-      sort(names , names + amountOfElements) ;
-
-      concatName = "" ;
-      for (int i = 0 ; i < amountOfElements ; ++ i) {
-         concatName += names[i] ;
       }
 
       eliminateId = -1 ;
       amountOfTrees = trees.size() ;
       for (int i = 0 ; i < amountOfTrees ; ++ i) {
-         if (trees[i].first == -sign) {
-            if (trees[i].second == concatName) {
-               eliminateId = i ; break ;
-            }
+         if (trees[i].first == -sign && trees[i].second == hashValue) {
+            eliminateId = i ; break ;
          }
       }
 
       if (eliminateId == -1) {
          result.push_back(elements) ;
-         trees.push_back(pair<char , string>(sign , concatName)) ;
+         trees.push_back(pair<char , unsigned long>(sign , hashValue)) ;
       } else {
          eliminate(eliminateId , result);
          eliminate(eliminateId , trees) ;
       }
-
-      delete [] names ;
 #else // __ELIMINATION__
       result.push_back(elements) ;
 #endif // __ELIMINATION__
@@ -126,7 +126,7 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
    vector<bool> visited(size , false) ;
    vector<vector<bool> > used(size) ;
 #ifdef __ELIMINATION__
-   vector<pair<char , string> > trees ; // pair of sign, element names
+   vector<pair<char , unsigned long> > trees ; // pair of sign, element names
 #endif // __ELIMINATION__
    for(int i = 0 ; i < size ; i ++) {
       int size_2 = this->nodes[i]->connections.size() ;
@@ -172,13 +172,13 @@ Circuit::~Circuit() {
 }
 
 void Circuit::print() const {
-   int size = nodes.size() ;
+   unsigned size = nodes.size() ;
    cout << "===== Circuit Detail =====" << endl;
-   for(unsigned i = 0; i < size ; ++i) {
-      cout << "[" << nodes[i]->nodeId << "]" << endl;
-      for(unsigned j = 0; j < nodes[i]->connections.size(); ++j)
-         cout << " -> [" << nodes[i]->connections[j].destination->nodeId
-            << "] " << nodes[i]->connections[j].element->name() << endl;
+   for(unsigned i = 0; i < size ; ++ i) {
+      cout << "[" << setw(2) << nodes[i]->nodeId << "]" << endl;
+      for(unsigned j = 0; j < nodes[i]->connections.size(); ++j) {
+         cout << " -> [" << setw(2) << nodes[i]->connections[j].destination->nodeId << "] " << *(nodes[i]->connections[j].element) << endl ;
+      }
    }
 }
 

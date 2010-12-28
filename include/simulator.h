@@ -30,6 +30,8 @@ private:
 
    Circuit * _circuit;
    ofstream& _fout;
+   vector<double> num ;
+   vector<double> den ;
 };
 
 #endif /* __SIMULATOR_H__ */

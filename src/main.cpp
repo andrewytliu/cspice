@@ -30,7 +30,9 @@ int main (int argc, char const* argv[])
          simulator.simulate(parser.getConfig()[i]);
       }
    } catch (ParseError e) {
-      cerr << e.message << endl;
+      cerr << e.message() << endl;
+   } catch (SmartObjException e) {
+      cerr << e.message() << endl ;
    }
 
    SmartObj::print() ;

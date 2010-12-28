@@ -28,9 +28,11 @@ public:
    virtual char sign() const {
       return 1 ;
    }
+
+   friend ostream& operator<<(ostream& out , const Element& element) ;
 protected:
-   double _value ;
    string _name ;
+   double _value ;
 };
 
 class Capacitor : public Element {

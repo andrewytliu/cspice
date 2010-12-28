@@ -86,5 +86,20 @@ class SmartPtr {
    }
 } ;
 
+class SmartObjException {
+   private:
+      string _message ;
+   public:
+      SmartObjException(const string& msg) : _message (msg) { }
+/*
+      const char * what() {
+         return _message.c_str() ;
+      }
+*/
+      const char * message() {
+         return _message.c_str() ;
+      }
+} ;
+
 #endif /* __SMARTOBJ_H__ */
 

@@ -83,8 +83,7 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       // 4. restore the elements leaving input_high
       iH->connections = backUp ;
    } else {
-      // TODO create corresponding exception class
-      throw "Input type should be VIN or IIN" ;
+      throw SimulateException("Input type should be VIN or IIN") ;
    }
 
    // DEBUG: print out formula

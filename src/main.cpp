@@ -33,6 +33,8 @@ int main (int argc, char const* argv[])
       cerr << e.message() << endl;
    } catch (SmartObjException e) {
       cerr << e.message() << endl ;
+   } catch (SimulateException e) {
+      cerr << e.message() << endl ;
    }
 
    SmartObj::print() ;

@@ -34,5 +34,15 @@ private:
    vector<double> den ;
 };
 
+class SimulateException {
+   private:
+      string _message ;
+   public:
+      SimulateException(const string& msg) : _message(msg) { }
+      const char * message() {
+         return _message.c_str() ;
+      }
+} ;
+
 #endif /* __SIMULATOR_H__ */
 

@@ -26,5 +26,11 @@ private:
    vector<SimulateConfig> config;
 };
 
+class ParseError {
+public:
+   ParseError(const string& msg) : message(msg) { }
+   string message;
+};
+
 #endif /* __PARSER_H__ */
 

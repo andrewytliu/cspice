@@ -126,7 +126,7 @@ void Parser::getConfig(const string& line) {
    stringstream sin(line , stringstream::in);
    string type;
    SimulateConfig single;
-   sin >> type >> single.start >> single.end >> single.step;
+   sin >> type >> single.start >> single.end >> single.step >> single.filename;
    if(sin.fail()) throw ParseError("Format error: " + line);
 
    switch(type[0]) {

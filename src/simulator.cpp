@@ -24,7 +24,7 @@ static void store(const vector<pair<int , double> >& mapping,
    return ;
 }
 
-Simulator::Simulator(Circuit * circuit) : _circuit(circuit) {
+Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(f) {
    // _circuit is a pointer
 }
 
@@ -116,45 +116,16 @@ void Simulator::simulate(SimulateConfig& config) {
    vector<double> num ;
    vector<double> den ;
    this->findFormula(num , den) ;
-   /*
-   // DEBUG: Print out transfer function
-   cout << "======== Transfer Function ========" << endl ;
-   cout << "Den\torder\tvalue" << endl ;
-   for (int i = 0 ; i < den.size() ; ++ i) {
-      cout << "\t" << i << "\t" << den[i] << endl ;
-   }
-   cout << "Num\torder\tvalue" << endl ;
-   for (int i = 0 ; i < num.size() ; ++ i) {
-      cout << "\t" << i << "\t" << num[i] << endl ;
-   }
-   // ************************************** //
-   */
-
-   // TODO complete the rest part of simulation
 
    if (config.type == FREQ) {
-      /* TODO decide the detail behavior */
-      // Now I just evaluate the values and print them out,
-      // need to decide what should we do after evaluate.
-      cout << "======== FREQ ========" << endl ;
       vector<pair<double,complex<double> > > result ;
       double ratio = exp(log(10.0) / config.step) ;
 
       for (double freq = config.start ; freq <= config.end ; freq *= ratio) {
          result.push_back(pair<double , complex<double> >(freq , evalFormula(num , freq) / evalFormula(den , freq))) ;
-         /* DEBUG: Print out these values */
-         cout << scientific << right << setw(15) << setprecision(6) // freq
-            << result.back().first ;
-         cout << scientific << right << setw(15) << setprecision(6) // amplitude in dB
-            << 20.0 * log10(abs(result.back().second)) ;
-         cout << fixed      << right << setw(15) << setprecision(6) // phase in degree
-            << arg(result.back().second) * 180.0 / acos(-1.0) << endl ;
-         /*********************************/
       }
-      // Now result are pairs of freq and value.
-      // End of simulating freq. domain response.
+      plotFreq(result, config);
    } else if (config.type == TIME) {
-      cout << "======== TIME ========" << endl ;
       // this is for unit step response, that is,
       // In[t] = 1.0 for t >= 0
       //
@@ -209,12 +180,53 @@ void Simulator::simulate(SimulateConfig& config) {
             out += num[N - k - 1] * newU[k] ;
          }
 
-         cout << setw(15) << right << time << "\t" << setw(15) << right << out << endl ;
          result.push_back(pair<double , double>(time , out)) ;
       }
 
       delete [] newU ;
       delete [] oldU ;
-      // End of simulating time domain response.
+      plotTime(result, config);
    }
 }
+
+void Simulator::plotFreq(const vector<pair<double,complex<double> > >& points, const SimulateConfig& config) {
+   _fout << "set terminal postscript enhanced color solid" << endl
+        << "set output '" << config.filename << "'" << endl
+        << "set multiplot layout 2, 1 title 'Frequency response'" << endl
+        << "set title 'Magnitude'" << endl
+        << "set log xy" << endl
+        << "plot '-' title '' with line" << endl;
+
+   for(unsigned i = 0; i < points.size(); ++i)
+      _fout << scientific << points[i].first << ' ' << 20.0 * log10(abs(points[i].second)) << endl;
+
+   _fout << "e" << endl << "set title 'Phase'" << endl
+        << "set yrange [-180:180]" << endl
+        << "unset logscale y" << endl
+        << "plot '-' title '' with line" << endl;
+
+   for(unsigned i = 0; i < points.size(); ++i)
+      _fout << scientific << points[i].first << ' ' << arg(points[i].second) * 180.0 / acos(-1.0) << endl;
+
+   _fout << "e" << endl
+        << "unset multiplot" << endl
+        << "set yrange [*:*]" << endl
+        << "unset log" << endl;
+}
+
+void Simulator::plotTime(const vector<pair<double,double> >& points, const SimulateConfig& config) {
+   // TODO: error
+
+   _fout << "set terminal postscript enhanced color solid" << endl
+        << "set title 'Time response'" << endl
+        << "set xlabel 'Time (s)'" << endl
+        << "set ylabel 'Voltage (V)'" << endl
+        << "set output '" << config.filename << "'" << endl
+        << "plot '-' with lines title ''" << endl;
+
+   for(unsigned i = 0; i < points.size(); ++i)
+      _fout << scientific << points[i].first << ' ' << points[i].second << endl;
+
+   _fout << "e" << endl;
+}
+

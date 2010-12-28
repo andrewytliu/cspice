@@ -19,12 +19,13 @@ int main (int argc, char const* argv[])
    ofstream fout(argv[2]);
    if(!fout.is_open()) {
       cerr << argv[2] << " cannot be opened!" << endl;
+      return 0;
    }
 
    try{
       Parser parser(fin);
       parser.getCircuit().print() ;
-      Simulator simulator(&parser.getCircuit());
+      Simulator simulator(&parser.getCircuit(), fout);
       for(int i = 0 , size = parser.getConfig().size() ; i < size ; ++ i) {
          simulator.simulate(parser.getConfig()[i]);
       }

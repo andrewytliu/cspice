@@ -25,8 +25,13 @@ Parser::Parser(ifstream& fin) {
          case 'T':
             getConfig(line);
             break;
+         case ' ':
+         case '\n':
+            break;
          default:
-            // TODO: should raise error here
+            string l = line;
+            if(l.size() == 0) break;
+            throw ParseError("Invalid token type: "  + l);
             break ;
       }
    }
@@ -39,10 +44,9 @@ void Parser::getRLC(const string& line) {
    double value;
    SmartPtr<Element> element;
    sin >> name >> n1 >> n2 >> value;
-   // TODO: raise error
-   if(n1 == n2) {
-      // TODO: raise error
-   }
+
+   if(sin.fail()) throw ParseError("Format error: " + line);
+   if(n1 == n2) throw ParseError("Invalid connection: " + line);
 
    switch(name[0]) {
       case 'R':
@@ -55,7 +59,7 @@ void Parser::getRLC(const string& line) {
          element = SmartPtr<Element>(new Capacitor(name, value));
          break;
       default:
-         // TODO: raise error
+         throw ParseError("Invalid element" + line);
          break ;
    }
 
@@ -72,10 +76,9 @@ void Parser::getGm(const string& line) {
    unsigned n1, n2, n3, n4;
    double value;
    sin >> name >> n1 >> n2 >> n3 >> n4 >> value;
-   // TODO: raise error
-   if(n1 == n3 && n2 == n4) {
-      // TODO: raise error
-   }
+
+   if(sin.fail()) throw ParseError("Format error: " + line);
+   if(n1 == n3 && n2 == n4) throw ParseError("Invalid connection: " + line);
 
    SmartPtr<Element> element(new VCCS(name, value , 1)) ;
    SmartPtr<Element> rev_element(new VCCS(name, value , -1));
@@ -96,6 +99,7 @@ void Parser::getPreset(const string& line) {
    string name;
    unsigned n1, n2;
    sin >> name >> n1 >> n2;
+   if(sin.fail()) throw ParseError("Format error: " + line);
 
    switch(name[0]) {
       case 'O':
@@ -113,7 +117,7 @@ void Parser::getPreset(const string& line) {
          circuit.inputType  = IIN;
          break;
       default:
-         // TODO: error
+         throw ParseError("Invalid element" + line);
          break ;
    }
 }
@@ -123,6 +127,7 @@ void Parser::getConfig(const string& line) {
    string type;
    SimulateConfig single;
    sin >> type >> single.start >> single.end >> single.step;
+   if(sin.fail()) throw ParseError("Format error: " + line);
 
    switch(type[0]) {
       case 'F':
@@ -132,7 +137,7 @@ void Parser::getConfig(const string& line) {
          single.type = TIME;
          break;
       default:
-         // TODO: error
+         throw ParseError("Invalid element" + line);
          break ;
    }
    config.push_back(single);

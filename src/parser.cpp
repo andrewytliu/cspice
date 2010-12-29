@@ -2,6 +2,30 @@
 #include "parser.h"
 #include "element.h"
 
+istream& operator>>(istream& sin, ValueParser& parser) {
+   string unit;
+
+   sin >> parser.value;
+   if(sin.fail()) return sin;
+
+   sin >> unit;
+   if(sin.fail()) {
+      sin.clear();
+      return sin;
+   } else {
+      if(unit == "F") parser.value *= 1e-15;
+      else if(unit == "P") parser.value *= 1e-15;
+      else if(unit == "N") parser.value *= 1e-9;
+      else if(unit == "U") parser.value *= 1e-6;
+      else if(unit == "M") parser.value *= 1e-3;
+      else if(unit == "K") parser.value *= 1e3;
+      else if(unit == "MEG") parser.value *= 1e6;
+      else if(unit == "G") parser.value *= 1e9;
+      else if(unit == "T") parser.value *= 1e12;
+   }
+   return sin;
+}
+
 Parser::Parser(ifstream& fin) {
    char line[1024] ;
    while(true) {
@@ -42,8 +66,9 @@ void Parser::getRLC(const string& line) {
    string name;
    unsigned n1, n2;
    double value;
+   ValueParser parser(value);
    SmartPtr<Element> element;
-   sin >> name >> n1 >> n2 >> value;
+   sin >> name >> n1 >> n2 >> parser;
 
    if(sin.fail()) throw ParseError("Format error: " + line);
    if(n1 == n2) throw ParseError("Invalid connection: " + line);
@@ -75,7 +100,8 @@ void Parser::getGm(const string& line) {
    string name;
    unsigned n1, n2, n3, n4;
    double value;
-   sin >> name >> n1 >> n2 >> n3 >> n4 >> value;
+   ValueParser parser(value);
+   sin >> name >> n1 >> n2 >> n3 >> n4 >> parser;
 
    if(sin.fail()) throw ParseError("Format error: " + line);
    if(n1 == n3 && n2 == n4) throw ParseError("Invalid connection: " + line);

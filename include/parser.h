@@ -26,6 +26,16 @@ private:
    vector<SimulateConfig> config;
 };
 
+class ValueParser {
+friend istream& operator>>(istream&, ValueParser&);
+public:
+   ValueParser(double& v) : value(v) {}
+private:
+   double& value;
+};
+
+extern istream& operator>>(istream&, ValueParser&);
+
 class ParseError {
 private:
    string _message;

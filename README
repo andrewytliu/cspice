@@ -1,4 +1,44 @@
-CSPICE
+# CSPICE
 
-A simple SPICE in C/C++.
+A simple SPICE in C/C++
+
+(C) 2010 Andrew Liu <andrewliu33 gmail.com>
+(C) 2010 Stimim Chen <death1048576 gmail.com>
+
+## Compile
+
+Simply just `make', tested on 32/64bit GNU/Linux and Mingw in Windows.
+
+## Usage
+
+      cspice [NETLIST] [PLOT]
+
+The output format is a gnuplot setting file, using `gnuplot [PLOT]' to plot the output of simulation.  For more information of gnuplot, please check the website (http://sourceforge.net/projects/gnuplot/files/gnuplot/4.4.2/).
+
+## Support elements and simulations
+
+### Support elements
+
+Resistor, Inductor, Capacitor, Voltage Control Current Source, Voltage source input, Current source input
+
+### Support simulations
+
+Transient response, Frequency response
+
+## Netlist format
+
+      # Elements
+      VIN   [NODE1] [NODE2]         # Voltage source input
+      IIN   [NODE1] [NODE2]         # Current source input
+      V[ID] [NODE1] [NODE2] [VALUE] # Voltage source
+      I[ID] [NODE1] [NODE2] [VALUE] # Current source
+      R[ID] [NODE1] [NODE2] [VALUE] # Resistor
+      L[ID] [NODE1] [NODE2] [VALUE] # Inductor
+      C[ID] [NODE1] [NODE2] [VALUE] # Capacitor
+      G[ID] [NODE1] [NODE2] [NODE3] [NODE4] [VALUE]
+      # VCCS: (V3-V4) = (VALUE) * (V1 - V2)
+
+      # Simulations
+      FREQ  [START] [END] [STEP] [OUTPUT] # Frequency response
+      TIME  [START] [END] [STEP] [OUTPUT] # Transient response
 

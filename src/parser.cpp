@@ -68,7 +68,7 @@ void Parser::getRLC(const string& line) {
    unsigned n1, n2;
    double value;
    ValueParser parser(value);
-   SmartPtr<Element> element;
+   Element* element;
    sin >> name >> n1 >> n2 >> parser;
 
    if(sin.fail()) throw ParseError("Format error: " + line);
@@ -76,19 +76,20 @@ void Parser::getRLC(const string& line) {
 
    switch(name[0]) {
       case 'R':
-         element = SmartPtr<Element>(new Resistor(name, value));
+         element = new Resistor(name, value);
          break;
       case 'L':
-         element = SmartPtr<Element>(new Inductor(name, value));
+         element = new Inductor(name, value);
          break;
       case 'C':
-         element = SmartPtr<Element>(new Capacitor(name, value));
+         element = new Capacitor(name, value);
          break;
       default:
          throw ParseError("Invalid element" + line);
          break ;
    }
 
+   circuit.pushElement(element);
    Node * node1 = circuit.getNodeById(n1);
    Node * node2 = circuit.getNodeById(n2);
 
@@ -107,8 +108,10 @@ void Parser::getGm(const string& line) {
    if(sin.fail()) throw ParseError("Format error: " + line);
    if(n1 == n3 && n2 == n4) throw ParseError("Invalid connection: " + line);
 
-   SmartPtr<Element> element(new VCCS(name, value , 1)) ;
-   SmartPtr<Element> rev_element(new VCCS(name, value , -1));
+   Element* element(new VCCS(name, value , 1)) ;
+   Element* rev_element(new VCCS(name, value , -1));
+   circuit.pushElement(element);
+   circuit.pushElement(rev_element);
 
    Node * node1 = circuit.getNodeById(n1);
    Node * node2 = circuit.getNodeById(n2);
@@ -151,10 +154,12 @@ void Parser::getPreset(const string& line) {
       Node * node2 = circuit.getNodeById(n2);
 
       if(name[0] == 'V') {
-         SmartPtr<Element> element(new VSRC(name, value));
+         Element* element(new VSRC(name, value));
+         circuit.pushElement(element);
          node1->setConnect(node2, element);
       } else {
-         SmartPtr<Element> element(new ISRC(name, value));
+         Element* element(new ISRC(name, value));
+         circuit.pushElement(element);
          node1->setConnect(node2, element);
       }
    } else {

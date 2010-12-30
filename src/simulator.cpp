@@ -32,8 +32,8 @@ Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(
 void Simulator::findFormula(vector<double>& num, vector<double>& den) {
    vector<pair<int , double> > tmp_den ;
    vector<pair<int , double> > tmp_num ;
-   vector<vector<SmartPtr<Element> > > denSpanningTrees ;
-   vector<vector<SmartPtr<Element> > > numSpanningTrees ;
+   vector<vector<const Element*> > denSpanningTrees ;
+   vector<vector<const Element*> > numSpanningTrees ;
    Node *iH , *iL , *oH , *oL ;
 
    iH = _circuit->   getInputHigh   () ;
@@ -48,16 +48,16 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 2. find den:
       //    a. add a dummy cell (value = 1) from input_high to input_low
-      iH->setConnect(iL , SmartPtr<Element>(new Dummy("Dummy element for DEN (+1)" , 1))) ;
+      iH->setConnect(iL , new Dummy("Dummy element for DEN (+1)" , 1)) ;
       //    b. get all spanning trees (input_low is the reference node)
       denSpanningTrees = _circuit->enumTree(iL) ;
       //    c. remove dummy cell
       iH->connections.clear() ;
       // 3. find num:
       //    a. add a dummy cell (value =-1) from input_high to output_high
-      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM (-1)" ,-1))) ;
+      iH->setConnect(oH , new Dummy("Dummy element for NUM (-1)" ,-1)) ;
       //    b. add a dummy cell (value = 1) from input_high to output_low
-      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM (+1)" , 1))) ;
+      iH->setConnect(oL , new Dummy("Dummy element for NUM (+1)" , 1)) ;
       //    c. get all spanning trees (input_low is the reference node)
       numSpanningTrees = _circuit->enumTree(iL) ;
       //    d remove dummy cell
@@ -73,9 +73,9 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 3. find num:
       //    a. add a dummy cell (value =-1) from input_high to output_high
-      iH->setConnect(oH , SmartPtr<Element>(new Dummy("Dummy element for NUM (-1)" ,-1))) ;
+      iH->setConnect(oH , new Dummy("Dummy element for NUM (-1)" ,-1)) ;
       //    b. add a dummy cell (value =+1) from input_high to output_low
-      iH->setConnect(oL , SmartPtr<Element>(new Dummy("Dummy element for NUM (+1)" , 1))) ;
+      iH->setConnect(oL , new Dummy("Dummy element for NUM (+1)" , 1)) ;
       //    c. get all spanning trees (input_low is the reference node)
       numSpanningTrees = _circuit->enumTree(iL) ;
       //    d remove dummy cell

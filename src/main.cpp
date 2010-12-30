@@ -31,13 +31,10 @@ int main (int argc, char const* argv[])
       }
    } catch (ParseError e) {
       cerr << e.message() << endl;
-   } catch (SmartObjException e) {
-      cerr << e.message() << endl ;
    } catch (SimulateException e) {
       cerr << e.message() << endl ;
    }
 
-   SmartObj::print() ;
    return 0;
 }
 

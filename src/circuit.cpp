@@ -26,15 +26,15 @@ void Circuit::dfs(
    int size,
    vector<bool>& visited,
    vector<vector<bool> >& used,
-   vector<SmartPtr<Element> >& elements,
-   vector<vector<SmartPtr<Element> > >& result
+   vector<const Element*>& current_tree,
+   vector<vector<const Element*> >& result
    #ifdef __ELIMINATION__
    ,vector<pair<char , unsigned long long> >& trees
    #endif
 ) {
    // visited[i]  -> has nodes[i] been contained in the tree yet?
    // used[i][j]  -> has nodes[i].connections[j] been used yet?
-   // elements    -> an array storing current tree edges
+   // current_tree-> an array storing current tree edges
    // result      -> an array storing tree edges of all spanning trees
 
    // check if all the nodes are used
@@ -54,13 +54,13 @@ void Circuit::dfs(
                recoverList.push_back(pair<int , int>(v , i)) ;
                visited[v] = true ;
                used[v][i] = true ;
-               elements.push_back(this->nodes[v]->connections[i].element) ;
+               current_tree.push_back(this->nodes[v]->connections[i].element) ;
 #ifdef __ELIMINATION__
-               this->dfs(size , visited , used , elements , result , trees) ;
+               this->dfs(size , visited , used , current_tree , result , trees) ;
 #else
-               this->dfs(size , visited , used , elements , result) ;
+               this->dfs(size , visited , used , current_tree , result) ;
 #endif
-               elements.pop_back() ;
+               current_tree.pop_back() ;
                visited[v] = false ;
             }
          }
@@ -78,7 +78,7 @@ void Circuit::dfs(
       // check if elimination could be done
       char sign = 1;
       int eliminateId ;
-      int amountOfElements = elements.size() ;
+      int amountOfElements = current_tree.size() ;
       int amountOfTrees ;
       unsigned long long hashValue = 0ull ;
 
@@ -95,9 +95,9 @@ void Circuit::dfs(
          // Be ware that, we have to take the risk of
          // hash(a) + hash(b) == hash(c) + hash(d),
          // though I don't think it would happen so easily.
-         hashValue += hash(elements[i]->formula().c_str()) ;
+         hashValue += hash(current_tree[i]->formula().c_str()) ;
 
-         sign *= elements[i]->sign() ;
+         sign *= current_tree[i]->sign() ;
       }
 
       eliminateId = -1 ;
@@ -109,21 +109,21 @@ void Circuit::dfs(
       }
 
       if (eliminateId == -1) {
-         result.push_back(elements) ;
+         result.push_back(current_tree) ;
          trees.push_back(pair<char , unsigned long long>(sign , hashValue)) ;
       } else {
          eliminate(eliminateId , result);
          eliminate(eliminateId , trees) ;
       }
 #else // __ELIMINATION__
-      result.push_back(elements) ;
+      result.push_back(current_tree) ;
 #endif // __ELIMINATION__
    }
 }
 
-vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
-   vector<vector<SmartPtr<Element> > > result ;
-   vector<SmartPtr<Element> > elements ;
+vector<vector<const Element*> > Circuit::enumTree(const Node * refNode) {
+   vector<vector<const Element*> > result ;
+   vector<const Element*> current_tree ;
    int size = this->nodes.size() ;
    unsigned refNodeIndex = getIndexById(refNode->nodeId) ;
 
@@ -141,9 +141,9 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
    visited[refNodeIndex] = true ;
 
 #ifdef __ELIMINATION__
-   this->dfs(size, visited , used , elements , result , trees) ;
+   this->dfs(size, visited , used , current_tree , result , trees) ;
 #else
-   this->dfs(size, visited , used , elements , result) ;
+   this->dfs(size, visited , used , current_tree , result) ;
 #endif
    return result ;
 }
@@ -165,7 +165,7 @@ Node * Circuit::getNodeById(unsigned id) { // consturct new node if not exist
    return nodes[getIndexById(id)] ;
 }
 
-void Node::setConnect(const Node * dest, const SmartPtr<Element>& element) {
+void Node::setConnect(const Node * dest, const Element* element) {
    this->connections.push_back(Connection(dest , element)) ;
 }
 
@@ -173,6 +173,10 @@ Circuit::~Circuit() {
    int size = nodes.size() ;
    for(int i = 0 ; i < size ; ++ i) {
       delete nodes[i] ;
+   }
+   size = elements.size() ;
+   for(int i = 0 ; i < size ; ++ i) {
+      delete elements[i] ;
    }
 }
 
@@ -186,3 +190,4 @@ void Circuit::print() const {
       }
    }
 }
+

@@ -8,7 +8,7 @@
 #include "utils.h"
 using namespace std;
 
-void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostream& fout) {
+void printFormula(const vector<vector<const Element*> >& collection , ostream& fout) {
    int sizeOfCollection = collection.size() ;
 
    for(int i = 0 ; i < sizeOfCollection ; ++ i) {
@@ -38,7 +38,7 @@ void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostrea
  * then one can use evalFormula(coefficients, freq) to evaluate.
  */
 vector<pair<int , double> > expandFormula(
-   const vector<vector<SmartPtr<Element> > >& collection) {
+   const vector<vector<const Element*> >& collection) {
    int sizeOfCollection = collection.size() ;
    map<int ,double> mapping ;
    vector<pair<int , double> > result ;
@@ -113,3 +113,4 @@ unsigned long long hash(const char * p) {
    result *= prime ;
    return result ;
 }
+

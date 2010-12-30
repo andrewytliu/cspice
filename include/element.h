@@ -4,12 +4,11 @@
 #include <string>
 #include <iostream>
 
-#include "smartObj.h"
 using namespace std;
 /*
  * This is the base type of Resistor, Capacitor, Inductor
  */
-class Element : public SmartObj {
+class Element {
 public:
    enum ElementType {
       T_CAPACITOR,
@@ -21,18 +20,13 @@ public:
       T_DUMMY,
    } ;
 
-   friend class SmartPtr<Element> ;
-   Element(const string& name, double value) :SmartObj(), _name(name), _value(value) {}
+   Element(const string& name, double value):_name(name), _value(value) {}
    virtual ~Element() {}
    virtual ElementType type() const = 0 ; // Get the type of this element
    virtual string formula() const   = 0 ; // the formula of Y (admittance), without sign
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
    virtual double value() const     = 0 ; // the admittance = s^(order()) * value() * sign()
    string name() const { return this->_name; }
-
-   const Element * clone() const {
-      return (const Element *)this->SmartObj::clone() ;
-   }
 
    virtual char sign() const {
       return 1 ;

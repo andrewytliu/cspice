@@ -195,15 +195,18 @@ void Simulator::plotFreq(const vector<pair<double,complex<double> > >& points, c
          << "set output '" << config.filename << "'" << endl
          << "set multiplot layout 2, 1 title 'Frequency response'" << endl
          << "set title 'Magnitude'" << endl
-         << "set log xy" << endl
+         << "set xlabel 'Frequency (Hz)'" << endl
+         << "set ylabel 'Gain (dB)'" << endl
+         << "set log x" << endl
          << "plot '-' title '' with line" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)
       _fout << scientific << points[i].first << ' ' << 20.0 * log10(abs(points[i].second)) << endl;
 
    _fout << "e" << endl << "set title 'Phase'" << endl
+         << "set xlabel 'Frequency (Hz)'" << endl
+         << "set ylabel 'Argument (Degree)'" << endl
          << "set yrange [-180:180]" << endl
-         << "unset logscale y" << endl
          << "plot '-' title '' with line" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)

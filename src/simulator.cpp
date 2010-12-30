@@ -191,39 +191,37 @@ void Simulator::simulate(SimulateConfig& config) {
 }
 
 void Simulator::plotFreq(const vector<pair<double,complex<double> > >& points, const SimulateConfig& config) {
-   _fout << "set terminal postscript enhanced color solid" << endl
-        << "set output '" << config.filename << "'" << endl
-        << "set multiplot layout 2, 1 title 'Frequency response'" << endl
-        << "set title 'Magnitude'" << endl
-        << "set log xy" << endl
-        << "plot '-' title '' with line" << endl;
+   _fout << "set terminal postscript eps enhanced color solid" << endl
+         << "set output '" << config.filename << "'" << endl
+         << "set multiplot layout 2, 1 title 'Frequency response'" << endl
+         << "set title 'Magnitude'" << endl
+         << "set log xy" << endl
+         << "plot '-' title '' with line" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)
       _fout << scientific << points[i].first << ' ' << 20.0 * log10(abs(points[i].second)) << endl;
 
    _fout << "e" << endl << "set title 'Phase'" << endl
-        << "set yrange [-180:180]" << endl
-        << "unset logscale y" << endl
-        << "plot '-' title '' with line" << endl;
+         << "set yrange [-180:180]" << endl
+         << "unset logscale y" << endl
+         << "plot '-' title '' with line" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)
       _fout << scientific << points[i].first << ' ' << arg(points[i].second) * 180.0 / acos(-1.0) << endl;
 
    _fout << "e" << endl
-        << "unset multiplot" << endl
-        << "set yrange [*:*]" << endl
-        << "unset log" << endl;
+         << "unset multiplot" << endl
+         << "set yrange [*:*]" << endl
+         << "unset log" << endl;
 }
 
 void Simulator::plotTime(const vector<pair<double,double> >& points, const SimulateConfig& config) {
-   // TODO: error
-
-   _fout << "set terminal postscript enhanced color solid" << endl
-        << "set title 'Time response'" << endl
-        << "set xlabel 'Time (s)'" << endl
-        << "set ylabel 'Voltage (V)'" << endl
-        << "set output '" << config.filename << "'" << endl
-        << "plot '-' with lines title ''" << endl;
+   _fout << "set terminal postscript eps enhanced color solid" << endl
+         << "set title 'Time response'" << endl
+         << "set xlabel 'Time (s)'" << endl
+         << "set ylabel 'Voltage (V)'" << endl
+         << "set output '" << config.filename << "'" << endl
+         << "plot '-' with lines title ''" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)
       _fout << scientific << points[i].first << ' ' << points[i].second << endl;

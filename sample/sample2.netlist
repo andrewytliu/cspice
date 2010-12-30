@@ -10,5 +10,5 @@ Rx  6   2   100.0
 Cx  2   0   0.5
 VIN 6   0
 OUT 5   0
-TIME 0.0 10.0 0.5 time.ps
-FREQ 0.1 0.349 40 freq.ps
+TIME 0.0 10.0 0.5 time.eps
+FREQ 0.1 0.349 40 freq.eps

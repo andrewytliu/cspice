@@ -8,6 +8,6 @@ R2  4   0   10.0
 L2  4   0   2.0
 C2  4   0   3.0
 
-FREQ 0.02 0.2 40 freq.ps
-TIME 0.00 25.0 0.5 time.ps
+FREQ 0.02 0.2 40 freq.eps
+TIME 0.00 25.0 0.5 time.eps
 

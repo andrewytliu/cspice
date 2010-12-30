@@ -22,6 +22,7 @@ istream& operator>>(istream& sin, ValueParser& parser) {
       else if(unit == "MEG") parser.value *= 1e6;
       else if(unit == "G") parser.value *= 1e9;
       else if(unit == "T") parser.value *= 1e12;
+      else throw ParseError("Unrecognized unit: " + unit);
    }
    return sin;
 }
@@ -127,24 +128,37 @@ void Parser::getPreset(const string& line) {
    sin >> name >> n1 >> n2;
    if(sin.fail()) throw ParseError("Format error: " + line);
 
-   switch(name[0]) {
-      case 'O':
-         circuit.outputHighId = n1;
-         circuit.outputLowId  = n2;
-         break;
-      case 'V':
+   if(name == "OUT") {
+      circuit.outputHighId = n1;
+      circuit.outputLowId  = n2;
+   } else if(name[0] == 'V' || name[0] == 'I') {
+      double value = 0.0;
+
+      if(name == "VIN") {
          circuit.inputHighId = n1;
          circuit.inputLowId  = n2;
          circuit.inputType   = VIN;
-         break;
-      case 'I':
+      } else if(name == "IIN") {
          circuit.inputHighId = n1;
          circuit.inputLowId  = n2;
          circuit.inputType  = IIN;
-         break;
-      default:
-         throw ParseError("Invalid element" + line);
-         break ;
+      } else {
+         sin >> value;
+         if(sin.fail()) throw ParseError("Format error: " + line);
+      }
+
+      Node * node1 = circuit.getNodeById(n1);
+      Node * node2 = circuit.getNodeById(n2);
+
+      if(name[0] == 'V') {
+         SmartPtr<Element> element(new VSRC(name, value));
+         node1->setConnect(node2, element);
+      } else {
+         SmartPtr<Element> element(new ISRC(name, value));
+         node1->setConnect(node2, element);
+      }
+   } else {
+      throw ParseError("Invalid element" + line);
    }
 }
 

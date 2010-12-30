@@ -16,6 +16,8 @@ public:
       T_INDUCTOR,
       T_RESISTOR,
       T_VCCS,
+      T_VSRC,
+      T_ISRC,
       T_DUMMY,
    } ;
 
@@ -132,6 +134,48 @@ public:
    }
 };
 
+class VSRC : public Element {
+public:
+   VSRC(const string name , double value) : Element(name, value) { }
+
+   virtual ElementType type() const {
+      return T_VSRC ;
+   }
+
+   virtual string formula() const {
+      return "   " + this->_name + "  " ;
+   }
+
+   virtual int order() const {
+      return 0;
+   }
+
+   virtual double value() const {
+      return this->_value ;
+   }
+};
+
+class ISRC : public Element {
+public:
+   ISRC(const string name , double value) : Element(name, value) { }
+
+   virtual ElementType type() const {
+      return T_ISRC ;
+   }
+
+   virtual string formula() const {
+      return "   " + this->_name + "  " ;
+   }
+
+   virtual int order() const {
+      return 0;
+   }
+
+   virtual double value() const {
+      return this->_value ;
+   }
+};
+
 class Dummy : public Element {
 protected:
    char _sign ; // +1 for positive, -1 for negative
@@ -160,3 +204,4 @@ public:
 };
 
 #endif /* __ELEMENT_H__ */
+

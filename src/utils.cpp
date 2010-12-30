@@ -16,7 +16,7 @@ void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostrea
       string line = "" ;
       char sign = 1 ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
-         if (collection[i][j]->type() != "Dummy") {
+         if (collection[i][j]->type() != Element::T_DUMMY) {
             line += "(" + collection[i][j]->formula() + ") " ;
          }
          sign *= collection[i][j]->sign() ;
@@ -37,7 +37,8 @@ void printFormula(const vector<vector<SmartPtr<Element> > >& collection , ostrea
  * need to shift the orders and make them all nonnegative,
  * then one can use evalFormula(coefficients, freq) to evaluate.
  */
-vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> > >& collection) {
+vector<pair<int , double> > expandFormula(
+   const vector<vector<SmartPtr<Element> > >& collection) {
    int sizeOfCollection = collection.size() ;
    map<int ,double> mapping ;
    vector<pair<int , double> > result ;
@@ -47,18 +48,15 @@ vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> 
       int order = 0;
       int amountOfElements = collection[i].size() ;
       for(int j = 0 ; j < amountOfElements ; ++ j) {
-         //if (collection[i][j]->type() != "Dummy") {
-            value *= collection[i][j]->value() * collection[i][j]->sign() ;
-            order += collection[i][j]->order() ;
-         //}
+         value *= collection[i][j]->value() * collection[i][j]->sign() ;
+         order += collection[i][j]->order() ;
       }
       mapping[order] += value ;
    }
 
-   for(map<int , double>::const_iterator it = mapping.begin() ; it != mapping.end() ; ++ it) {
-      if (abs(it->second) > 1.0e-10) { // if the value is too small, ignore it!
-         result.push_back((*it)) ;
-      }
+   for(map<int , double>::const_iterator it = mapping.begin() ;
+      it != mapping.end() ; ++ it) {
+      result.push_back((*it)) ;
    }
 
    return result ;
@@ -68,7 +66,8 @@ vector<pair<int , double> > expandFormula(const vector<vector<SmartPtr<Element> 
  * coefficients is an array contains a_0, a_1, a_2, ... a_n and this function
  * evaluate sum[a_k * s^k], where s = i * 2 * pi * freq, k = 0 ... n
  */
-complex<double> evalFormula(const vector<double>& coefficients,const double& freq) {
+complex<double> evalFormula(const vector<double>& coefficients,
+   const double& freq) {
    double omega = 2.0 * acos(-1.0) * freq ; // pi = acos(-1.0)
    double image = 0.0 , real = 0.0 ;
 
@@ -99,26 +98,18 @@ ostream& operator<<(ostream& out , const Element& element) {
    return out ;
 }
 
-unsigned long hash(const char* p) {
-   // using sdbm hash algorithm
-   unsigned long result = 0;
-   const unsigned char * str = (const unsigned char *)p ;
-   int c;
-   while ((c = (*(str++))))
-      result = c + (result << 6) + (result << 16) - result;
-
-   return result;
-}
-
-unsigned long hash(const vector<unsigned long>& array) {
-   // using FNV-1 hash algorithm
-   unsigned long result = 14695981039346656037ul ;
-   for (vector<unsigned long>::const_iterator it = array.begin() ; it < array.end() ; ++ it) {
-      result *= 1099511628211ul ;
+unsigned long long hash(const char * p) {
+   // using FNV-1a hash algorithm
+   const unsigned long long prime = 1099511628211ull ;
+   unsigned long long result = 14695981039346656037ull ;
+   unsigned long long length = 0 ;
+   for (const unsigned char * it = (const unsigned char*) p ; *it ; ++ it) {
       result ^= (*it) ;
+      result *= prime ;
+      ++ length ;
    }
 
-   result *= 1099511628211ul ;
-   result ^= array.size() ;
+   result ^= length ;
+   result *= prime ;
    return result ;
 }

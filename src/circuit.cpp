@@ -21,15 +21,17 @@ static void eliminate(int index , vector< T >& array) {
 }
 #endif // __ELIMINATION__
 
-#ifdef __ELIMINATION__
-void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
-      vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result,
-      vector<pair<char , unsigned long> >& trees)
-#else
-void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
-      vector<SmartPtr<Element> >& elements, vector<vector<SmartPtr<Element> > >& result)
-#endif
-{
+
+void Circuit::dfs(
+   int size,
+   vector<bool>& visited,
+   vector<vector<bool> >& used,
+   vector<SmartPtr<Element> >& elements,
+   vector<vector<SmartPtr<Element> > >& result
+   #ifdef __ELIMINATION__
+   ,vector<pair<char , unsigned long long> >& trees
+   #endif
+) {
    // visited[i]  -> has nodes[i] been contained in the tree yet?
    // used[i][j]  -> has nodes[i].connections[j] been used yet?
    // elements    -> an array storing current tree edges
@@ -72,27 +74,29 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
    }
 
    if(done) {
-      // check if really done, that is, all nodes are visited
-      for (int i = 0 ; i < size ; ++ i) {
-         if (visited[i] != true) {
-            return ;
-         }
-      }
 #ifdef __ELIMINATION__
       // check if elimination could be done
       char sign = 1;
       int eliminateId ;
       int amountOfElements = elements.size() ;
       int amountOfTrees ;
-      unsigned long hashValue = 14695981039346656037ul ;
+      unsigned long long hashValue = 0ull ;
 
       string concatName ;
 
       for (int i = 0 ; i < amountOfElements ; ++ i) {
-         // if two elements only different in sign, they should have same formula.
+         // if two elements only different in sign,
+         // they should have same formula.
          // Ex: gm and -gm
-         // use + , since it's commutative, that is, the order of elements doesn't matter.
+
+         // use + , since it's commutative, that is,
+         // the order of elements doesn't matter.
+
+         // Be ware that, we have to take the risk of
+         // hash(a) + hash(b) == hash(c) + hash(d),
+         // though I don't think it would happen so easily.
          hashValue += hash(elements[i]->formula().c_str()) ;
+
          sign *= elements[i]->sign() ;
       }
 
@@ -106,7 +110,7 @@ void Circuit::dfs(int size, vector<bool>& visited, vector<vector<bool> >& used,
 
       if (eliminateId == -1) {
          result.push_back(elements) ;
-         trees.push_back(pair<char , unsigned long>(sign , hashValue)) ;
+         trees.push_back(pair<char , unsigned long long>(sign , hashValue)) ;
       } else {
          eliminate(eliminateId , result);
          eliminate(eliminateId , trees) ;
@@ -126,7 +130,8 @@ vector<vector<SmartPtr<Element> > > Circuit::enumTree(const Node * refNode) {
    vector<bool> visited(size , false) ;
    vector<vector<bool> > used(size) ;
 #ifdef __ELIMINATION__
-   vector<pair<char , unsigned long> > trees ; // pair of sign, element names
+   // pair of sign, sum of hashed element names
+   vector<pair<char , unsigned long long> > trees ;
 #endif // __ELIMINATION__
    for(int i = 0 ; i < size ; i ++) {
       int size_2 = this->nodes[i]->connections.size() ;
@@ -181,4 +186,3 @@ void Circuit::print() const {
       }
    }
 }
-

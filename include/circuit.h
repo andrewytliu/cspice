@@ -48,14 +48,16 @@ public:
    void print() const ;
 
 private:
+
+   void dfs(
+      int, vector<bool>&,
+      vector<vector<bool> >&,
+      vector<SmartPtr<Element> >&,
+      vector<vector<SmartPtr<Element> > >&
 #ifdef __ELIMINATION__
-   void dfs(int, vector<bool>&, vector<vector<bool> >&,
-         vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&,
-         vector<pair<char , unsigned long> >&) ;
-#else // __ELIMINATION__
-   void dfs(int, vector<bool>&, vector<vector<bool> >&,
-         vector<SmartPtr<Element> >&, vector<vector<SmartPtr<Element> > >&) ;
+      ,vector<pair<char , unsigned long long> >&
 #endif // __ELIMINATION__
+   ) ;
 
    unsigned getIndexById(unsigned id) ; // consturct new node if not exist
 

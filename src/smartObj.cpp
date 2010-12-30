@@ -18,7 +18,7 @@ SmartObj::~SmartObj() {
    }
 }
 
-const SmartObj * SmartObj::clone() const {
+const void * SmartObj::clone() const {
    SmartObj::addRefAmount(this , 1) ;
    return this;
 }

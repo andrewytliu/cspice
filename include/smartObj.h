@@ -11,8 +11,9 @@ public:
    SmartObj();
    ~SmartObj();
 
-   virtual const SmartObj * clone() const ;
-   virtual void release() ;
+   const void * clone() const ;
+   void release() ;
+
    void * operator new(size_t size);
    void   operator delete(void* ptr);
 
@@ -20,8 +21,6 @@ public:
    static int setRefAmount(const void* , int);
    static int addRefAmount(const void* , int);
    static void print() ;
-protected:
-   //mutable int _ref;
 private:
    static map<const void* , int> mapping ;
 };
@@ -61,17 +60,7 @@ class SmartPtr {
       this->ptr = (T *)(rhs.ptr->clone()) ;
       return *this ;
    }
-/*
-   SmartPtr& operator= (const T* rhs) {
-      cout << "[" << __func__ << "(T*)]" << endl ;
-      if(this->ptr != NULL) {
-         this->release() ;
-      }
 
-      this->ptr = (T *)(rhs->clone()) ;
-      return *this ;
-   }
-*/
    const T& operator* () const {return *ptr;}
    const T* operator->() const {return  ptr;}
 
@@ -91,11 +80,6 @@ class SmartObjException {
       string _message ;
    public:
       SmartObjException(const string& msg) : _message (msg) { }
-/*
-      const char * what() {
-         return _message.c_str() ;
-      }
-*/
       const char * message() {
          return _message.c_str() ;
       }

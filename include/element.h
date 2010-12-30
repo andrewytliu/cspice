@@ -11,18 +11,25 @@ using namespace std;
  */
 class Element : public SmartObj {
 public:
+   enum ElementType {
+      T_CAPACITOR,
+      T_INDUCTOR,
+      T_RESISTOR,
+      T_VCCS,
+      T_DUMMY,
+   } ;
+
    friend class SmartPtr<Element> ;
    Element(const string& name, double value) :SmartObj(), _name(name), _value(value) {}
-
-   virtual string type() const      = 0 ; // nothing special, might be used when debugging
+   virtual ~Element() {}
+   virtual ElementType type() const = 0 ; // Get the type of this element
    virtual string formula() const   = 0 ; // the formula of Y (admittance), without sign
    virtual int order() const        = 0 ; // R: 0, L: -1, C: 1
    virtual double value() const     = 0 ; // the admittance = s^(order()) * value() * sign()
    string name() const { return this->_name; }
 
    const Element * clone() const {
-      this->SmartObj::clone() ;
-      return this ;
+      return (const Element *)this->SmartObj::clone() ;
    }
 
    virtual char sign() const {
@@ -39,8 +46,8 @@ class Capacitor : public Element {
 public:
    Capacitor(const string& name , double value) : Element(name, value) { }
 
-   virtual string type() const {
-      return "Capacitor" ;
+   virtual ElementType type() const {
+      return T_CAPACITOR ;
    }
 
    virtual string formula() const {
@@ -60,8 +67,8 @@ class Inductor : public Element {
 public:
    Inductor(const string& name , double value) : Element(name, value) { }
 
-   virtual string type() const {
-      return "Inductor" ;
+   virtual ElementType type() const {
+      return T_INDUCTOR ;
    }
 
    virtual string formula() const {
@@ -81,8 +88,8 @@ class Resistor : public Element {
 public:
    Resistor(const string name , double value) : Element(name, value) { }
 
-   virtual string type() const {
-      return "Resistor" ;
+   virtual ElementType type() const {
+      return T_RESISTOR ;
    }
 
    virtual string formula() const {
@@ -104,8 +111,8 @@ protected:
 public:
    VCCS(const string name , double value , char sign) : Element(name, value) , _sign(sign){ }
 
-   virtual string type() const {
-      return "Voltage Controlled Current Source" ;
+   virtual ElementType type() const {
+      return T_VCCS ;
    }
 
    virtual string formula() const {
@@ -135,8 +142,8 @@ public:
       return _sign ;
    }
 
-   virtual string type() const {
-      return "Dummy" ;
+   virtual ElementType type() const {
+      return T_DUMMY ;
    }
 
    virtual string formula() const {
@@ -153,4 +160,3 @@ public:
 };
 
 #endif /* __ELEMENT_H__ */
-

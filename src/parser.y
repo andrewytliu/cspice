@@ -31,10 +31,9 @@ Parser * currentParser ;
    char * sv;
 };
 
-%token <sv> T_RID T_LID T_CID T_VSRC T_ISRC
+%token <sv> T_RID T_LID T_CID T_VSRC T_ISRC T_FNAME T_GID T_SRC
 %token <iv> T_INTEGER
 %token <dv> T_DOUBLE T_PREFIX
-%token <sv> T_FNAME T_GID
 %token T_FREQ T_TIME T_OUT T_EOL 
 
 %type <dv> value double
@@ -142,9 +141,9 @@ value:
    ;
 
 freq:
-      T_FREQ value value T_INTEGER T_FNAME {
-         printf("T_FREQ(%lf,%lf,%d,%s)\n",$2,$3,$4,$5);
-         currentParser->addFreqSwap($2 , $3 , $4 , $5) ;
+      T_FREQ value value T_INTEGER T_SRC T_FNAME {
+         printf("T_FREQ(%lf,%lf,%d,%s,%s)\n",$2,$3,$4,$5,$6);
+         currentParser->addFreqSwap($2 , $3 , $4 , $5 , $6) ;
       }
    ;
 

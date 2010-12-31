@@ -26,7 +26,7 @@ src/parseYY.cpp src/parseYY.hpp: src/parser.y
 	@ln -sf src/parseYY.hpp include/parseYY.hpp
 
 bin/cspice : $(COBJS)
-	$(CXX) $(CFLAGS) -o $@ $(COBJS) -ll
+	$(CXX) $(CFLAGS) -o $@ $(COBJS)
 
 obj/%.o : src/%.c
 	$(CXX) $(CFLAGS) -c -o $@ $<
@@ -37,5 +37,5 @@ obj/%.o : src/%.cpp
 $(COBJS) : $(CHDRS)
 
 clean:
-	-rm -f obj/* bin/*
+	-rm -f obj/* bin/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
 

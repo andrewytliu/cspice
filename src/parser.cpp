@@ -16,7 +16,7 @@ Parser::Parser(const char * fname = NULL) {
    }
 }
 
-void Parser::addFreqSwap(double start , double end , int pointPerDecade , const char * fname) {
+void Parser::addFreqSwap(double start , double end , int pointPerDecade , const char * src , const char * fname) {
    SimulateConfig single;
    single.start = start;
    single.end = end;

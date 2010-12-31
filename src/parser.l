@@ -8,7 +8,8 @@ using namespace std ;
 #define E_IV  2
 #define E_GM  3
 #define E_OUT 4
-#define E_SIM 5
+#define S_FREQ 5
+#define S_TIME 6
 
 #define yylval parselval
 
@@ -42,12 +43,12 @@ PREFIX ({MILLI}|{MICRO}|{NANO}|{PICO}|{FEMTO}|{KILO}|{MEGA}|{GIGA}|{TERA})
 TIME  ((TIME)|(time))
 FREQ  ((((((FREQ)U?)E?)N?)C?)Y?)
 
-R     ^R
-L     ^L
-C     ^C
-V     ^V
-I     ^I
-GM    ^G
+R     R
+L     L
+C     C
+V     V
+I     I
+GM    G
 NID   ({DIGIT}+)
 EID   (({ALPHA}|{alpha}|{DIGIT})+)
 
@@ -59,6 +60,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 %s R_PREFIX
 %s R_FNAME
+%s R_SRC
 
 %%
 {WS}  {
@@ -73,7 +75,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_EOL;
 }
 
-{GM}{EID}/{WS} {
+<INITIAL>^{GM}{EID}/{WS} {
    printf("[VCCS(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -83,7 +85,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_GID;
 }
 
-{V}{EID}/{WS} {
+<INITIAL>^{V}{EID}/{WS} {
    printf("[Voltage(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -93,7 +95,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_VSRC;
 }
 
-{I}{EID}/{WS} {
+<INITIAL>^{I}{EID}/{WS} {
    printf("[Current(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -103,7 +105,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_ISRC;
 }
 
-{R}{EID}/{WS} {
+<INITIAL>^{R}{EID}/{WS} {
    printf("[Resistor(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -113,7 +115,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_RID;
 }
 
-{L}{EID}/{WS} {
+<INITIAL>^{L}{EID}/{WS} {
    printf("[Inductor(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -123,7 +125,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_LID;
 }
 
-{C}{EID}/{WS} {
+<INITIAL>^{C}{EID}/{WS} {
    printf("[Capacitor(%s)]",yytext);
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
@@ -133,12 +135,20 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_CID;
 }
 
-OUT/{WS} {
+<INITIAL>^OUT/{WS} {
    printf("[OUT]");
    BEGIN INT;
    amount = 2 ;
    current = E_OUT ;
    return T_OUT;
+}
+
+<R_SRC>({V}|{I}){EID}/{WS} {
+   printf("[Source(%s)]",yytext);
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
+   BEGIN R_FNAME;
+   return T_SRC;
 }
 
 <INT>{INTEGER} {
@@ -169,8 +179,10 @@ OUT/{WS} {
          case E_GM  :
          case E_OUT :
             BEGIN INITIAL;current = 0 ; break ;
-         case E_SIM:
-            BEGIN R_FNAME; break ;
+         case S_FREQ:
+            BEGIN R_SRC; break ;
+         case S_TIME:
+            BEGIN R_FNAME ; break ;
       }
    }
    return T_INTEGER;
@@ -186,8 +198,10 @@ OUT/{WS} {
          case E_GM  :
          case E_OUT :
             BEGIN INITIAL;current = 0 ; break ;
-         case E_SIM:
-            BEGIN R_FNAME; break ;
+         case S_FREQ:
+            BEGIN R_SRC; break ;
+         case S_TIME:
+            BEGIN R_FNAME ; break ;
       }
    }
    return T_DOUBLE;
@@ -221,8 +235,10 @@ OUT/{WS} {
          case E_GM  :
          case E_OUT :
             BEGIN INITIAL;current = 0 ; break ;
-         case E_SIM:
-            BEGIN R_FNAME; break ;
+         case S_FREQ:
+            BEGIN R_SRC ; amount = 1; break ;
+         case S_TIME:
+            BEGIN R_FNAME ; amount = 1; break ;
       }
    } else {
       BEGIN VALUE ;
@@ -233,7 +249,7 @@ OUT/{WS} {
 {TIME}/{WS} {
    printf("[Time]");
    BEGIN VALUE ;
-   current = E_SIM ;
+   current = S_TIME ;
    amount = 3 ;
    return T_TIME;
 }
@@ -242,7 +258,7 @@ OUT/{WS} {
    printf("[Frequency]");
    BEGIN VALUE ;
    amount = 3;
-   current = E_SIM;
+   current = S_FREQ;
    return T_FREQ;
 }
 

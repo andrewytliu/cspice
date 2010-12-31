@@ -16,7 +16,7 @@ public:
    Circuit& getCircuit() { return circuit; }
    vector<SimulateConfig>& getConfig() { return config; }
 
-   void addFreqSwap(double,double,int,const char *) ;
+   void addFreqSwap(double,double,int,const char *,const char *) ;
    void addTimeSwap(double,double,double,const char *) ;
    void addR(const char *,int,int,double) ;
    void addL(const char *,int,int,double) ;

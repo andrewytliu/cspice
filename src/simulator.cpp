@@ -217,6 +217,7 @@ void Simulator::plotFreq(const vector<pair<double,complex<double> > >& points, c
    _fout << "e" << endl << "set title 'Phase'" << endl
          << "set xlabel 'Frequency (Hz)'" << endl
          << "set ylabel 'Argument (Degree)'" << endl
+         << "set yrange [-180:180]" << endl
          << "plot '-' title '' with line" << endl;
 
    for(unsigned i = 0; i < points.size(); ++i)

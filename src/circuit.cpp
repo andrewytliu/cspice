@@ -214,7 +214,7 @@ void Circuit::print() const {
          cout << " -> [" << setw(2) << nodes[i]->connections[j].destination->nodeId << "] " << *(nodes[i]->connections[j].element) << endl ;
       }
    }
-   cout << "----- Sources -----" << endl ;
+   cout << "--------- Source ---------" << endl ;
    for(vector<Source *>::const_iterator it = sources.begin() ;
       it != sources.end() ; ++ it) {
       cout << (*it)->name() << " [" << (*it)->node1() << "] -> [" << (*it)->node2() <<

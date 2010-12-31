@@ -63,12 +63,16 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 %s R_SRC
 
 %%
+#.*$ {
+   /* any thing after '#' is a comment */
+}
+
 {WS}  {
   /*  Ignore */
 }
 
 {EOL} {
-   printf("\n");
+   /*printf("\n");*/
    /* reset */
    BEGIN INITIAL ;
    amount = current = 0;
@@ -76,7 +80,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{GM}{EID}/{WS} {
-   printf("[VCCS(%s)]",yytext);
+   /*printf("[VCCS(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT;
@@ -86,7 +90,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{V}{EID}/{WS} {
-   printf("[Voltage(%s)]",yytext);
+   /*printf("[Voltage(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT;
@@ -96,7 +100,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{I}{EID}/{WS} {
-   printf("[Current(%s)]",yytext);
+   /*printf("[Current(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT ;
@@ -106,7 +110,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{R}{EID}/{WS} {
-   printf("[Resistor(%s)]",yytext);
+   /*printf("[Resistor(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT;
@@ -116,7 +120,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{L}{EID}/{WS} {
-   printf("[Inductor(%s)]",yytext);
+   /*printf("[Inductor(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT;
@@ -126,7 +130,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^{C}{EID}/{WS} {
-   printf("[Capacitor(%s)]",yytext);
+   /*printf("[Capacitor(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INT;
@@ -136,7 +140,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INITIAL>^OUT/{WS} {
-   printf("[OUT]");
+   /*printf("[OUT]");*/
    BEGIN INT;
    amount = 2 ;
    current = E_OUT ;
@@ -144,7 +148,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <R_SRC>({V}|{I}){EID}/{WS} {
-   printf("[Source(%s)]",yytext);
+   /*printf("[Source(%s)]",yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN R_FNAME;
@@ -152,7 +156,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <INT>{INTEGER} {
-   printf("INTEGER(%s)",yytext);
+   /*printf("INTEGER(%s)",yytext);*/
    yylval.iv = atoi(yytext) ;
    if ((-- amount) == 0) {
       switch(current) {
@@ -170,7 +174,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <VALUE>{INTEGER}/{EOT} {
-   printf("INTEGER(%s)",yytext);
+   /*printf("INTEGER(%s)",yytext);*/
    yylval.iv = atoi(yytext) ;
    if ((-- amount) == 0) {
       switch(current) {
@@ -189,7 +193,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <VALUE>{DOUBLE}/{EOT} {
-   printf("DOUBLE(%s)",yytext);
+   /*printf("DOUBLE(%s)",yytext);*/
    yylval.dv = atof(yytext) ;
    if ((-- amount) == 0) {
       switch(current) {
@@ -208,14 +212,14 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <VALUE>({DOUBLE}|{INTEGER})/{PREFIX}{EOT} {
-   printf("DOUBLE(%s)",yytext);
+   /*printf("DOUBLE(%s)",yytext);*/
    yylval.dv = atof(yytext) ;
    BEGIN R_PREFIX;
    return T_DOUBLE;
 }
 
 <R_PREFIX>{PREFIX} {
-   printf("PREFIX(%s)",yytext);
+   /*printf("PREFIX(%s)",yytext);*/
    switch(*yytext) {
       case 'm': yylval.dv = 1e-3; break;
       case 'u': yylval.dv = 1e-6; break;
@@ -247,7 +251,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 {TIME}/{WS} {
-   printf("[Time]");
+   /*printf("[Time]");*/
    BEGIN VALUE ;
    current = S_TIME ;
    amount = 3 ;
@@ -255,7 +259,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 {FREQ}/{WS} {
-   printf("[Frequency]");
+   /*printf("[Frequency]");*/
    BEGIN VALUE ;
    amount = 3;
    current = S_FREQ;
@@ -263,7 +267,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 }
 
 <R_FNAME>{FNAME} {
-   printf("File(%s)" , yytext);
+   /*printf("File(%s)" , yytext);*/
    yylval.sv = new char[yyleng] ;
    strcpy(yylval.sv , yytext) ;
    BEGIN INITIAL ;

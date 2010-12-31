@@ -44,26 +44,6 @@ public:
    Node * getOutputLow () { return getNodeById(outputLowId) ; }
    unsigned getOutputHighId() { return outputHighId; }
    unsigned getOutputLowId () { return outputLowId ; }
-
-   vector<const Source*> getSources() const {
-      vector<const Source*> clone ;
-      int size = sources.size() ;
-      for(int i = 0 ; i < size ; ++ i) {
-         clone.push_back(sources[i]) ;
-      }
-      return clone ;
-   }
-
-   const Source * getSourceByName(const char * srcName) const {
-      int size = sources.size() ;
-      for(int i = 0 ; i < size ; ++ i) {
-         if(sources[i]->name() == srcName) {
-            return sources[i] ;
-         }
-      }
-      return NULL ;
-   }
-
    void print() const ;
 private:
    void propagateEquivalents(unsigned,vector<bool>&) ;

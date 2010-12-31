@@ -1,7 +1,6 @@
 Parser::Parser(const char * fname = NULL) {
    extern FILE * yyin ;
    extern int yyparse() ;
-   extern int parseErrorCount ;
 
    if (fname != NULL) {
       if (!(yyin = fopen(fname, "r"))) {
@@ -11,7 +10,7 @@ Parser::Parser(const char * fname = NULL) {
 
    currentParser = this ;
 
-   if (yyparse() != 0 || parseErrorCount != 0) {
+   if (yyparse() != 0) {
 
    }
 }

@@ -30,6 +30,7 @@ public:
 
    Node * getNodeById(unsigned id) ; // consturct new node if not exist
    void pushElement(Element* elem) { elements.push_back(elem); }
+   void pushSource(pair<Element*,Element*> elem) { sources.push_back(elem); }
 
    bool  checkCircuit() ;            // check floating node by DFS from GND
 
@@ -67,6 +68,7 @@ private:
    map<unsigned, unsigned> idMap ; // mapping node id to index of nodes
    vector<Node *> nodes ;
    vector<Element *> elements ;
+   vector<pair<Element*, Element*> > sources ;
 };
 
 class Node {

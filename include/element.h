@@ -130,7 +130,7 @@ public:
 
 class VSRC : public Element {
 public:
-   VSRC(const string name , double value) : Element(name, value) { }
+   VSRC(const string name , double high , double low , char sign) : Element(name, 0.0), _high(high), _low(low) { }
 
    virtual ElementType type() const {
       return T_VSRC ;
@@ -147,11 +147,22 @@ public:
    virtual double value() const {
       return this->_value ;
    }
+
+   virtual double high() const {
+      return this->_high ;
+   }
+
+   virtual double low() const {
+      return this->_low ;
+   }
+
+private:
+   double _high, _low;
 };
 
 class ISRC : public Element {
 public:
-   ISRC(const string name , double value) : Element(name, value) { }
+   ISRC(const string name , double high , double low , char sign) : Element(name, 0.0), _high(high), _low(low) { }
 
    virtual ElementType type() const {
       return T_ISRC ;
@@ -168,6 +179,17 @@ public:
    virtual double value() const {
       return this->_value ;
    }
+
+   virtual double high() const {
+      return this->_high ;
+   }
+
+   virtual double low() const {
+      return this->_low ;
+   }
+
+private:
+   double _high, _low;
 };
 
 class Dummy : public Element {

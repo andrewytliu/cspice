@@ -28,12 +28,6 @@ public:
 
 private:
    void setRLC(Element * , int , int) ;
-   /*
-   void getRLC(const string& line);
-   void getGm(const string& line);
-   void getPreset(const string& line);
-   void getConfig(const string& line);
-   */
    Circuit circuit;
    vector<SimulateConfig> config;
 };

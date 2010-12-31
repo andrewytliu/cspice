@@ -23,7 +23,7 @@ void Parser::addFreqSwap(double start , double end , int pointPerDecade , const 
    single.step = pointPerDecade;
    single.filename = string(fname);
    single.type = FREQ;
-   // TODO: need to mention source
+   single.srcName = src ;
    config.push_back(single);
 }
 
@@ -68,15 +68,12 @@ void Parser::addV(const char * name , int n1 , int n2 , double v1 , double v2) {
    Node * node1 = circuit.getNodeById(n1) ;
    Node * node2 = circuit.getNodeById(n2) ;
 
-   Element * element = new VSRC(name , v1 , v2 , 1) ;
-   Element * rev_ele = new VSRC(name , v1 , v2 , -1) ;
+   VoltageSource * vsrc = new VoltageSource(name , n1 , n2 , v1 , v2) ;
 
-   circuit.pushElement(element) ;
-   circuit.pushElement(rev_ele) ;
-   circuit.pushSource(pair<Element*,Element*>(element, rev_ele));
+   circuit.pushSource(vsrc) ;
 
-   node1->setConnect(node2 , element);
-   node2->setConnect(node1 , rev_ele);
+   node1->addEquivalent(node2 , vsrc);
+   node2->addEquivalent(node1 , vsrc);
 }
 
 void Parser::addI(const char * name , int n1 , int n2 , double v1 , double v2) {
@@ -84,18 +81,11 @@ void Parser::addI(const char * name , int n1 , int n2 , double v1 , double v2) {
       return ;
    }
 
-   Node * node1 = circuit.getNodeById(n1) ;
-   Node * node2 = circuit.getNodeById(n2) ;
+   //Node * node1 = circuit.getNodeById(n1) ;
+   //Node * node2 = circuit.getNodeById(n2) ;
 
-   Element * element = new ISRC(name , v1 , v2 , 1) ;
-   Element * rev_ele = new ISRC(name , v1 , v2 , -1) ;
-
-   circuit.pushElement(element) ;
-   circuit.pushElement(rev_ele) ;
-   circuit.pushSource(pair<Element*,Element*>(element, rev_ele));
-
-   node1->setConnect(node2 , element);
-   node2->setConnect(node1 , rev_ele);
+   Source * isrc = new CurrentSource(name , n1 , n2 , v1 , v2) ;
+   circuit.pushSource(isrc);
 }
 
 void Parser::addG(const char * name , int n1 , int n2 , int n3 , int n4 , double v) {

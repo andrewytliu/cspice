@@ -21,6 +21,20 @@ static void eliminate(int index , vector< T >& array) {
 }
 #endif // __ELIMINATION__
 
+void Circuit::propagateEquivalents(unsigned index , vector<bool>& visited) {
+   const vector<Equivalent>& eq = this->nodes[index]->equivalents ;
+   for(vector<Equivalent>::const_iterator it = eq.begin() ;
+         it != eq.end() ; ++ it) {
+      if (it->reason != this->currentSource) { // this source is not "on" currently
+         unsigned nodeIndex = this->getIndexById(it->node->nodeId) ;
+         if (visited[nodeIndex] != visited[index]) {
+            // found a node with different status
+            visited[nodeIndex] = visited[index] ;
+            propagateEquivalents(nodeIndex , visited) ;
+         }
+      }
+   }
+}
 
 void Circuit::dfs(
    int size,
@@ -53,6 +67,7 @@ void Circuit::dfs(
             if(visited[desIndex] == true && used[v][i] == false) {
                recoverList.push_back(pair<int , int>(v , i)) ;
                visited[v] = true ;
+               propagateEquivalents(v , visited) ;
                used[v][i] = true ;
                current_tree.push_back(this->nodes[v]->connections[i].element) ;
 #ifdef __ELIMINATION__
@@ -62,6 +77,7 @@ void Circuit::dfs(
 #endif
                current_tree.pop_back() ;
                visited[v] = false ;
+               propagateEquivalents(v , visited) ;
             }
          }
       }
@@ -139,6 +155,7 @@ vector<vector<const Element*> > Circuit::enumTree(const Node * refNode) {
    }
 
    visited[refNodeIndex] = true ;
+   propagateEquivalents(refNodeIndex , visited) ;
 
 #ifdef __ELIMINATION__
    this->dfs(size, visited , used , current_tree , result , trees) ;
@@ -169,6 +186,10 @@ void Node::setConnect(const Node * dest, const Element* element) {
    this->connections.push_back(Connection(dest , element)) ;
 }
 
+void Node::addEquivalent(const Node * node , const VoltageSource * reason) {
+   this->equivalents.push_back(Equivalent(node , reason)) ;
+}
+
 Circuit::~Circuit() {
    int size = nodes.size() ;
    for(int i = 0 ; i < size ; ++ i) {
@@ -177,6 +198,10 @@ Circuit::~Circuit() {
    size = elements.size() ;
    for(int i = 0 ; i < size ; ++ i) {
       delete elements[i] ;
+   }
+   size = sources.size() ;
+   for(int i = 0 ; i < size ; ++ i) {
+      delete sources[i] ;
    }
 }
 
@@ -189,5 +214,12 @@ void Circuit::print() const {
          cout << " -> [" << setw(2) << nodes[i]->connections[j].destination->nodeId << "] " << *(nodes[i]->connections[j].element) << endl ;
       }
    }
+   cout << "----- Sources -----" << endl ;
+   for(vector<Source *>::const_iterator it = sources.begin() ;
+      it != sources.end() ; ++ it) {
+      cout << (*it)->name() << " [" << (*it)->node1() << "] -> [" << (*it)->node2() <<
+         "] " << (*it)->prevValue() << " " << (*it)->nextValue() << endl ;
+   }
+   cout << "==========================" << endl;
 }
 

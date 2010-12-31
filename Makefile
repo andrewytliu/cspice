@@ -25,6 +25,8 @@ src/parseYY.cpp src/parseYY.hpp: src/parser.y
 	@mv parseYY.hpp src/parseYY.hpp
 	@ln -sf src/parseYY.hpp include/parseYY.hpp
 
+obj/parseYY.o : src/parser.cpp
+
 bin/cspice : $(COBJS)
 	$(CXX) $(CFLAGS) -o $@ $(COBJS)
 

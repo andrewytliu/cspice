@@ -24,24 +24,38 @@ static void store(const vector<pair<int , double> >& mapping,
    return ;
 }
 
-Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(f) , num() , den() {
+Simulator::Simulator(Circuit * circuit, ofstream& f) : _circuit(circuit), _fout(f) , transferFunctions() {
    // _circuit is a pointer
-   findFormula(this->num , this->den) ;
+   // First, check circuit
+   // this->_circuit->check() ;
+   // Second, for each SRC in circuit, find T(s) = (Vout / SRC)
+   //    transferFunctions is a map that map <const Source *> to <TransferFunction>
+   vector<Source *>& sources = _circuit->sources ;
+   int size = sources.size() ;
+   for(int i = 0 ; i < size ; ++ i) {
+      TransferFunction transferFunction ;
+      this->findFormula(sources[i] , transferFunction) ;
+      transferFunctions.insert(pair<const Source * , TransferFunction>(sources[i] , transferFunction)) ;
+   }
 }
 
-void Simulator::findFormula(vector<double>& num, vector<double>& den) {
+void Simulator::findFormula(const Source * src , TransferFunction& tf) {
    vector<pair<int , double> > tmp_den ;
    vector<pair<int , double> > tmp_num ;
    vector<vector<const Element*> > denSpanningTrees ;
    vector<vector<const Element*> > numSpanningTrees ;
+
    Node *iH , *iL , *oH , *oL ;
 
-   iH = _circuit->   getInputHigh   () ;
-   iL = _circuit->   getInputLow    () ;
+   _circuit->currentSource = src ;
+
+   iH = _circuit->getNodeById(src->node1()) ;
+   iL = _circuit->getNodeById(src->node2()) ;
+
    oH = _circuit->   getOutputHigh  () ;
    oL = _circuit->   getOutputLow   () ;
 
-   if (_circuit->getInputType() == VIN) {
+   if (src->type() == Source::VSRC) {
       // 1. back up and remove all the elements leaving input_high
       vector<Connection> backUp ;
       backUp = iH->connections;
@@ -64,7 +78,7 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
       iH->connections.clear() ;
       // 4. restore the elements leaving input_high
       iH->connections = backUp ;
-   } else if(_circuit->getInputType() == IIN) {
+   } else if(src->type() == Source::ISRC) {
       // 1. find den:
       //    a. get all spanning trees (input_low is the reference node)
       denSpanningTrees = _circuit->enumTree(iL) ;
@@ -105,87 +119,84 @@ void Simulator::findFormula(vector<double>& num, vector<double>& den) {
    for(int i = 0 ; i < tmp_den_size ; ++ i)
       tmp_den[i].first -= minOrder ;
    // 7. store num
-   store(tmp_num , num) ;
+   store(tmp_num , tf.num) ;
    // 8. store den
-   store(tmp_den , den) ;
+   store(tmp_den , tf.den) ;
 
    return ;
 }
 
 void Simulator::simulate(SimulateConfig& config) {
-   // first, find out the formula of circuit
-   // vector<double> num ;
-   // vector<double> den ;
-   // this->findFormula(num , den) ;
-
    if (config.type == FREQ) {
+      // [TODO] Since this is freq. swap, only src would effect.
+      const Source * p_src = NULL ;
+      TransferFunction tf ;
+
+      for (map<const Source * , TransferFunction>::const_iterator it = transferFunctions.begin() ;
+            it != transferFunctions.end() ; ++ it) {
+         if (it->first->name() == config.srcName) {
+            p_src = it->first ;
+            tf = it->second ;
+         }
+      }
+      if(p_src == NULL) {
+         stringstream msg ;
+         msg << "Can't find source \"" << config.srcName << "\"" ;
+         throw SimulateException(msg.str()) ;
+      }
       vector<pair<double,complex<double> > > result ;
       double ratio = exp(log(10.0) / config.step) ;
 
       for (double freq = config.start ; freq <= config.end ; freq *= ratio) {
-         result.push_back(pair<double , complex<double> >(freq , evalFormula(num , freq) / evalFormula(den , freq))) ;
+         result.push_back(pair<double , complex<double> >(freq , evalFormula(tf.num , freq) / evalFormula(tf.den , freq))) ;
       }
       plotFreq(result, config);
    } else if (config.type == TIME) {
-      // this is for unit step response, that is,
-      // In[t] = 1.0 for t >= 0
-      //
-      // for convenient, make Num and Den have save size.
-      int N = max(den.size() , num.size()) ;
-      vector<pair<double , double> > result ;// pair of time and value
+      vector<pair<double , double> > result ;
+      // 1. Find out the prev value of Vout
+      // 2. For each src that changes value, find it's unit step response, V(t)
+      // 3. Vout = DC + Sum{ Delta * V(t) , for each src }
+      double prevVOUT = 0 ;
+      vector<double> times ;
+      vector<double> vout  ;
+      unsigned size = 0;
 
-      num.resize(N , 0.0) ;
-      den.resize(N , 0.0) ;
-
-      double * newU = new double[N] ; // u[k][t + 1]
-      double * oldU = new double[N] ; // u[k][t]
-      double DEN , step ;
-
-      DEN = 0.0 ;
-      for (int k = 0 ; k < N ; ++ k) {
-         DEN = DEN * (config.step / 2.0) + den[k] ;
+      if (config.start >= config.end) {
+         throw SimulateException("The start point should be before the end point.") ;
+      }
+      // if config.step is illegal, or,
+      // if there are too less node, make config.step be 1 / 20 of total times
+      if (config.step <= 0 || (config.end - config.start) / config.step < 40.0 ) {
+         config.step = (config.end - config.start) / 40.0 ;
       }
 
-      // Initialize
-      for (int i = 0 ; i < N ; ++ i) {
-         newU[i] = oldU[i] = 0 ;
+      // generate times
+      for (double time = config.start ; time <= config.end ; time += config.step) {
+         times.push_back(time) ;
+         vout.push_back(0.0) ;
+         ++ size ;
       }
-      oldU[0] = 1.0 / den[N - 1] ;
 
-      //step = config.step / (N * 1e3); // Real time step is (config.step / (N * 1e3))
-      step = config.step / (N << 10); // Real time step is (config.step / (N * 1e3))
-
-      for (double time = config.start + config.step ; time <= config.end ; time += config.step) {
-         for(int i = 0 ; i < (N << 10) ; ++ i) { // Real time step is (config.step / (N * 1e3))
-            double sum1 , sum2 ;
-
-            newU[0] = 0.0 ;
-            sum1 = oldU[0] * (step / 2.0) ;
-            sum2 = 0.0 ;
-            for (int k = 1 ; k < N ; ++ k) {
-               sum2 = sum2 * (step / 2.0)  + oldU[k] ;
-               newU[0] += den[N - k - 1] * (sum1 + sum2) ;
-               sum1 = (step / 2.0) * (sum1 + oldU[k]) ;
-            }
-            newU[0] = (1.0 - newU[0]) / DEN ;
-
-            for (int k = 1 ; k < N ; ++ k) {
-               newU[k] = oldU[k] + (step / 2.0) * (oldU[k - 1] + newU[k - 1]) ;
-            }
-            for (int k = 0 ; k < N ; ++ k) {
-               oldU[k] = newU[k] ;
+      for (map<const Source * , TransferFunction>::iterator it = transferFunctions.begin() ;
+            it != transferFunctions.end() ; ++ it) {
+         complex<double> v = evalFormula(it->second.num , 0) / evalFormula(it->second.den , 0) ;
+         prevVOUT += abs(v) * it->first->prevValue() ;
+         if (abs(it->first->pulseValue()) > 0) {
+            vector<double> vout_tmp = numericalIntegration(times , it->second) ;
+            for(unsigned i = 0 ; i < size ; ++ i) {
+               vout[i] += vout_tmp[i] * it->first->pulseValue() ;
             }
          }
-         double out = 0.0 ;
-         for (int k = 0 ; k < N ; ++ k) {
-            out += num[N - k - 1] * newU[k] ;
-         }
-
-         result.push_back(pair<double , double>(time , out)) ;
       }
 
-      delete [] newU ;
-      delete [] oldU ;
+      for (unsigned i = 0 ; i < size ; ++ i) {
+         vout[i] += prevVOUT ;
+      }
+
+      for (unsigned i = 1 ; i < size ; ++ i) {
+         result.push_back(pair<double , double>(times[i] , vout[i])) ;
+      }
+
       plotTime(result, config);
    }
 }

@@ -1,0 +1,11 @@
+OUT 1 0
+R1 1 2 1k
+C1 1 3 1u
+L1 1 4 10m
+Vbp 2 0 0 1
+Vlp 3 0 0 1
+Vhp 4 0 0 1
+
+FREQ 1 1M 10 Vbp freq_bp.eps
+FREQ 1 1M 10 Vlp freq_lp.eps
+FREQ 1 1M 10 Vhp freq_hp.eps

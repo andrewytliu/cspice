@@ -8,7 +8,7 @@ Gm1 3   0   4   0   100.0
 Gm2 4   0   5   0   -100.0
 Rx  6   2   100.0
 Cx  2   0   0.5
-VIN 6   0
+VIN 6   0   0   1
 OUT 5   0
 TIME 0.0 10.0 0.5 time.eps
-FREQ 0.1 0.349 40 freq.eps
+FREQ 0.1 0.349 40 VIN freq.eps

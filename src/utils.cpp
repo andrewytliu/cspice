@@ -114,3 +114,66 @@ unsigned long long hash(const char * p) {
    return result ;
 }
 
+vector<double> numericalIntegration(const vector<double>& times , Simulator::TransferFunction& tf , unsigned shift) {
+   // shift has a default value of 8
+
+   // this is for unit step response, that is,
+   // In[t] = 1.0 for t >= 0
+   //
+   // for convenient, make Num and Den have same size.
+   int N = max(tf.den.size() , tf.num.size()) ;
+   vector<double> result ;
+
+   tf.num.resize(N , 0.0) ;
+   tf.den.resize(N , 0.0) ;
+
+   double * newU = new double[N] ; // u[k][t + 1]
+   double * oldU = new double[N] ; // u[k][t]
+
+   // Initialize
+   for (int i = 0 ; i < N ; ++ i) {
+      newU[i] = oldU[i] = 0 ;
+   }
+   oldU[0] = 1.0 / tf.den[N - 1] ;
+
+   result.push_back(0.0) ;
+   unsigned size = times.size() ;
+   for (unsigned t = 1 ; t < size ; ++ t) {
+      double step = (times[t] - times[t - 1]) / (N << shift); // Real time step is smaller than output set
+      double DEN = 0 ;
+
+      for (int k = 0 ; k < N ; ++ k) {
+         DEN = DEN * (step / 2.0) + tf.den[k] ;
+      }
+
+      for(int i = 0 ; i < (N << shift) ; ++ i) {
+         double sum1 , sum2 ;
+
+         newU[0] = 0.0 ;
+         sum1 = oldU[0] * (step / 2.0) ;
+         sum2 = 0.0 ;
+         for (int k = 1 ; k < N ; ++ k) {
+            sum2 = sum2 * (step / 2.0)  + oldU[k] ;
+            newU[0] += tf.den[N - k - 1] * (sum1 + sum2) ;
+            sum1 = (step / 2.0) * (sum1 + oldU[k]) ;
+         }
+         newU[0] = (1.0 - newU[0]) / DEN ;
+
+         for (int k = 1 ; k < N ; ++ k) {
+            newU[k] = oldU[k] + (step / 2.0) * (oldU[k - 1] + newU[k - 1]) ;
+         }
+         for (int k = 0 ; k < N ; ++ k) {
+            oldU[k] = newU[k] ;
+         }
+      }
+      double out = 0.0 ;
+      for (int k = 0 ; k < N ; ++ k) {
+         out += tf.num[N - k - 1] * newU[k] ;
+      }
+
+      result.push_back(out) ;
+   }
+
+   delete [] newU ;
+   return result ;
+}

@@ -2,6 +2,9 @@ obj/*
 result/*
 testcase/*
 bin/*
+src/parseYY.cpp
+src/parseYY.hpp
+src/parseLEX.cpp
 *.o
 *~
 *.swp

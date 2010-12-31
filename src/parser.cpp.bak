@@ -1,5 +1,6 @@
 #include <sstream>
 #include "parser.h"
+#include "parser.tab.h"
 #include "element.h"
 
 istream& operator>>(istream& sin, ValueParser& parser) {
@@ -27,41 +28,22 @@ istream& operator>>(istream& sin, ValueParser& parser) {
    return sin;
 }
 
-Parser::Parser(ifstream& fin) {
-   char line[1024] ;
-   while(true) {
-      fin.getline(line , 1024); // this can only use "char *" as argument
-      if(fin.eof()) break;
-      switch(line[0]) {
-         case 'R':
-         case 'L':
-         case 'C':
-            getRLC(line);
-            break;
-         case 'G':
-            getGm(line);
-            break;
-         case 'V':
-         case 'I':
-         case 'O':
-            getPreset(line);
-            break;
-         case 'F':
-         case 'T':
-            getConfig(line);
-            break;
-         case ' ':
-         case '\n':
-            break;
-         default:
-            string l = line;
-            if(l.size() == 0) break;
-            throw ParseError("Invalid token type: "  + l);
-            break ;
+Parser::Parser(const string& fname = "") {
+   extern FILE * yyin ;
+   extern int yyparse() ;
+   extern int parseErrorCount ;
+
+   if (fname != "") {
+      if (!(yyin = fopen(fname.c_str() , "r"))) {
+         cerr << '"' << fname << '"' << " can't be opened." << endl ;
       }
    }
-}
 
+   if (yyparse() != 0 || parseErrorCount != 0) {
+
+   }
+}
+/*
 void Parser::getRLC(const string& line) {
    stringstream sin(line , stringstream::in);
    string name;
@@ -187,4 +169,4 @@ void Parser::getConfig(const string& line) {
    }
    config.push_back(single);
 }
-
+*/

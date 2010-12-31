@@ -23,7 +23,7 @@ int main (int argc, char const* argv[])
    }
 
    try{
-      Parser parser(fin);
+      Parser parser(argv[1]);
       parser.getCircuit().print() ;
       Simulator simulator(&parser.getCircuit(), fout);
       for(int i = 0 , size = parser.getConfig().size() ; i < size ; ++ i) {

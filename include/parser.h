@@ -10,18 +10,30 @@ using namespace std;
 
 class Parser {
 public:
-   Parser(ifstream& fin) ;
+   Parser(const char *) ;
    const Circuit& getCircuit() const { return circuit; }
    const vector<SimulateConfig>& getConfig() const { return config; }
    Circuit& getCircuit() { return circuit; }
    vector<SimulateConfig>& getConfig() { return config; }
 
+   void addFreqSwap(double,double,int,const char *) ;
+   void addTimeSwap(double,double,double,const char *) ;
+   void addR(const char *,int,int,double) ;
+   void addL(const char *,int,int,double) ;
+   void addC(const char *,int,int,double) ;
+   void addV(const char *,int,int,double,double) ;
+   void addI(const char *,int,int,double,double) ;
+   void addG(const char *,int,int,int,int,double) ;
+   void addOut(int,int) ;
+
 private:
+   void setRLC(Element * , int , int) ;
+   /*
    void getRLC(const string& line);
    void getGm(const string& line);
    void getPreset(const string& line);
    void getConfig(const string& line);
-
+   */
    Circuit circuit;
    vector<SimulateConfig> config;
 };

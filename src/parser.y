@@ -28,7 +28,7 @@ Parser * currentParser ;
 %union {
    int iv;
    double dv;
-   const char * sv;
+   char * sv;
 };
 
 %token <sv> T_RID T_LID T_CID T_VSRC T_ISRC
@@ -77,6 +77,7 @@ resistor:
       T_RID T_INTEGER T_INTEGER value {
          printf("T_R(%d,%d,%lf)\n" , $2,$3,$4);
          currentParser->addR($1 , $2 , $3 , $4) ;
+         delete [] $1 ;
       }
    ;
 
@@ -84,6 +85,7 @@ inductor:
       T_LID T_INTEGER T_INTEGER value {
          printf("T_L(%d,%d,%lf)\n" , $2,$3,$4);
          currentParser->addL($1 , $2 , $3 , $4) ;
+         delete [] $1 ;
       }
    ;
 
@@ -91,6 +93,7 @@ capacitor:
       T_CID T_INTEGER T_INTEGER value {
          printf("T_C(%d,%d,%lf)\n" , $2,$3,$4);
          currentParser->addC($1 , $2 , $3 , $4) ;
+         delete [] $1 ;
       }
    ;
 
@@ -98,6 +101,7 @@ vccs:
       T_GID T_INTEGER T_INTEGER T_INTEGER T_INTEGER value {
          printf("T_VCCS(%d,%d,%d,%d,%lf)\n",$2,$3,$4,$5,$6) ;
          currentParser->addG($1 , $2 , $3 , $4 , $5 , $6) ;
+         delete [] $1 ;
       }
    ;
 
@@ -105,10 +109,12 @@ vsrc:
       T_VSRC T_INTEGER T_INTEGER value       {
          printf("T_VSRC(%d,%d,%lf,%lf)\n",$2,$3,$4,$4);
          currentParser->addV($1 , $2 , $3 , $4 , $4) ;
+         delete [] $1 ;
       }
    |  T_VSRC T_INTEGER T_INTEGER value value {
          printf("T_VSRC(%d,%d,%lf,%lf)\n",$2,$3,$4,$5);
          currentParser->addV($1 , $2 , $3 , $4 , $5) ;
+         delete [] $1 ;
       }
    ;
 
@@ -116,10 +122,12 @@ isrc:
       T_ISRC T_INTEGER T_INTEGER value       {
          printf("T_ISRC(%d,%d,%lf,%lf)\n",$2,$3,$4,$4);
          currentParser->addI($1 , $2 , $3 , $4 , $4) ;
+         delete [] $1 ;
       }
    |  T_ISRC T_INTEGER T_INTEGER value value {
          printf("T_ISRC(%d,%d,%lf,%lf)\n",$2,$3,$4,$5);
          currentParser->addI($1 , $2 , $3 , $4 , $5) ;
+         delete [] $1 ;
       }
    ;
 

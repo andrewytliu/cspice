@@ -75,7 +75,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {GM}{EID}/{WS} {
    printf("[VCCS(%s)]",yytext);
-   yylval.sv = yytext;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT;
    amount = 4 ;
    current = E_GM;
@@ -84,7 +85,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {V}{EID}/{WS} {
    printf("[Voltage(%s)]",yytext);
-   yylval.sv = yytext;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT;
    amount = 2;
    current = E_IV ;
@@ -93,7 +95,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {I}{EID}/{WS} {
    printf("[Current(%s)]",yytext);
-   yylval.sv = yytext ;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT ;
    amount = 2;
    current = E_IV ;
@@ -102,7 +105,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {R}{EID}/{WS} {
    printf("[Resistor(%s)]",yytext);
-   yylval.sv = yytext ;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT;
    amount = 2;
    current = E_RLC ;
@@ -111,7 +115,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {L}{EID}/{WS} {
    printf("[Inductor(%s)]",yytext);
-   yylval.sv = yytext ;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT;
    amount = 2;
    current = E_RLC ;
@@ -120,7 +125,8 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
 
 {C}{EID}/{WS} {
    printf("[Capacitor(%s)]",yytext);
-   yylval.sv = yytext ;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INT;
    amount = 2;
    current = E_RLC ;
@@ -242,7 +248,8 @@ OUT/{WS} {
 
 <R_FNAME>{FNAME} {
    printf("File(%s)" , yytext);
-   yylval.sv = yytext ;
+   yylval.sv = new char[yyleng] ;
+   strcpy(yylval.sv , yytext) ;
    BEGIN INITIAL ;
    return T_FNAME;
 }

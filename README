@@ -7,7 +7,8 @@ A simple SPICE in C/C++
 
 ## Compile
 
-Simply just `make', tested on 32/64bit GNU/Linux and Mingw in Windows.
+Tools like lex and yacc are used in parsing, please install `flex' and `bison'.
+Simply just `make', tested on 32/64bit GNU/Linux.
 
 ## Usage
 
@@ -28,8 +29,6 @@ Transient response, Frequency response
 ## Netlist format
 
       # Elements
-      VIN   [NODE1] [NODE2]         # Voltage source input
-      IIN   [NODE1] [NODE2]         # Current source input
       V[ID] [NODE1] [NODE2] [VALUE] # Voltage source
       I[ID] [NODE1] [NODE2] [VALUE] # Current source
       R[ID] [NODE1] [NODE2] [VALUE] # Resistor
@@ -39,6 +38,6 @@ Transient response, Frequency response
       # VCCS: (V3-V4) = (VALUE) * (V1 - V2)
 
       # Simulations
-      FREQ  [START] [END] [STEP] [OUTPUT] # Frequency response
-      TIME  [START] [END] [STEP] [OUTPUT] # Transient response
+      FREQ  [START] [END] [STEP] [SRC] [OUTPUT] # Frequency response
+      TIME  [START] [END] [STEP] [OUTPUT]       # Transient response
 

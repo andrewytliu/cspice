@@ -15,7 +15,8 @@ extern int yyparse(void) ;
 //extern YYSTYPE yylval ;
 
 void yyerror(const char *str) {
-   cerr << "error: " << str << endl ;
+   //cerr << "error: " << str << endl ;
+   throw ParseError(str);
 }
 
 int yywrap() {
@@ -34,7 +35,7 @@ Parser * currentParser ;
 %token <sv> T_RID T_LID T_CID T_VSRC T_ISRC T_FNAME T_GID T_SRC
 %token <iv> T_INTEGER
 %token <dv> T_DOUBLE T_PREFIX
-%token T_FREQ T_TIME T_OUT T_EOL 
+%token T_FREQ T_TIME T_OUT T_EOL
 
 %type <dv> value double
 
@@ -157,3 +158,4 @@ time:
 %%
 
 #include "parser.cpp"
+

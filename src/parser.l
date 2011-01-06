@@ -12,11 +12,16 @@ using namespace std ;
 #define S_TIME 6
 
 #define yylval parselval
+#define yyerror parseerror
 
 int current= 0;
 int amount = 0;
+const char * escape(const char * text) ;
+extern void yyerror(const char *) ;
 
 %}
+%option yylineno
+
 EOL   \n
 WS    [ \t]
 EOT   ({WS}|{EOL})
@@ -76,7 +81,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    /* reset */
    BEGIN INITIAL ;
    amount = current = 0;
-   return T_EOL;
+   return '\n' ;
 }
 
 <INITIAL>^{GM}{EID}/{WS} {
@@ -250,7 +255,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_PREFIX;
 }
 
-{TIME}/{WS} {
+<INITIAL>^{TIME}/{WS} {
    /*printf("[Time]");*/
    BEGIN VALUE ;
    current = S_TIME ;
@@ -258,7 +263,7 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    return T_TIME;
 }
 
-{FREQ}/{WS} {
+<INITIAL>^{FREQ}/{WS} {
    /*printf("[Frequency]");*/
    BEGIN VALUE ;
    amount = 3;
@@ -273,8 +278,35 @@ FNAME (([0-9a-zA-Z\.\-_])+\.eps)
    BEGIN INITIAL ;
    return T_FNAME;
 }
+
+.  {
+      /* rest cases */
+      char msg[40] ;
+      sprintf(msg , "Unexpected character: '%s'" , escape(yytext)) ;
+      yyerror(msg) ;
+      return yytext[0] ;
+   }
 %%
 
 int yywrap(void) {
    return 1;
+}
+
+const char * escape(const char * text) {
+   switch(text[0]) {
+      case '\n':
+         return "\\n" ;
+      case '\t':
+         return "\\t" ;
+      case '\b':
+         return "\\b" ;
+      case '\a':
+         return "\\a" ;
+      case '\\':
+         return "\\\\" ;
+      case '\'':
+         return "\\'" ;
+      default:
+         return text ;
+   }
 }

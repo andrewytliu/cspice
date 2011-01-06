@@ -7,6 +7,7 @@
 #include "element.h"
 
 #define yyin parsein
+#define yylineno parselineno
 
 using namespace std;
 
@@ -14,9 +15,12 @@ extern int yylex(void) ;
 extern int yyparse(void) ;
 //extern YYSTYPE yylval ;
 
-void yyerror(const char *str) {
+extern void yyerror(const char *str) {
    //cerr << "error: " << str << endl ;
-   throw ParseError(str);
+   extern int yylineno ;
+   stringstream msg ;
+   msg << "At line " << yylineno << ", " << str << endl ;
+   throw ParseError(msg.str());
 }
 
 int yywrap() {
@@ -25,6 +29,9 @@ int yywrap() {
 
 Parser * currentParser ;
 %}
+
+%defines
+%error-verbose
 
 %union {
    int iv;
@@ -35,7 +42,7 @@ Parser * currentParser ;
 %token <sv> T_RID T_LID T_CID T_VSRC T_ISRC T_FNAME T_GID T_SRC
 %token <iv> T_INTEGER
 %token <dv> T_DOUBLE T_PREFIX
-%token T_FREQ T_TIME T_OUT T_EOL
+%token T_FREQ T_TIME T_OUT
 
 %type <dv> value double
 
@@ -46,9 +53,9 @@ netlist:
    ;
 
 line:
-      element T_EOL
-   |  simulate T_EOL
-   |  T_EOL
+      element '\n'
+   |  simulate '\n'
+   |  '\n'
    ;
 
 element:

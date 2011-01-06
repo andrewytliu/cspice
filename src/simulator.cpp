@@ -170,7 +170,18 @@ void Simulator::simulate(SimulateConfig& config) {
          config.step = (config.end - config.start) / 40.0 ;
       }
 
-      // generate times
+      // generate times, first, from t = 0 to t = config.start
+      // step = (config.start - 0) / 80 (I don't want to spend too much time on
+      //                                 simulating initial condition)
+      if (config.start > 0) {
+         for (double time = 0.0 , step = (config.start - 0.0) / 80.0 ; time < config.start ; time += step) {
+            vout.push_back(0.0) ;
+            times.push_back(time) ;
+            ++ size ;
+         }
+      }
+
+      // generate times from t = config.start to config.end
       for (double time = config.start ; time <= config.end ; time += config.step) {
          times.push_back(time) ;
          vout.push_back(0.0) ;
@@ -193,8 +204,10 @@ void Simulator::simulate(SimulateConfig& config) {
          vout[i] += prevVOUT ;
       }
 
-      for (unsigned i = 1 ; i < size ; ++ i) {
-         result.push_back(pair<double , double>(times[i] , vout[i])) ;
+      for (unsigned i = 0 ; i < size ; ++ i) {
+         if (times[i] >= config.start) {
+            result.push_back(pair<double , double>(times[i] , vout[i])) ;
+         }
       }
 
       plotTime(result, config);

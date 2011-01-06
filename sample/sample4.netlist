@@ -12,3 +12,4 @@ FREQ 1 1M 10 Vlp freq_lp.eps
 FREQ 1 1M 10 Vhp freq_hp.eps
 
 TIME 0 1m 1u time.eps
+TIME 0.4m 1.4m 1u time_2.eps

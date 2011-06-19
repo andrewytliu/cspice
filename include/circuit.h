@@ -143,7 +143,7 @@ class PrimState {
       #endif
       Circuit* circuit; // original circuit
       vector<int> startFrom; // next valid edge for v is from id
-      set<pair<int,int> > used;
+//      set<pair<int,int> > used;
       /*** functions ****/
       PrimState() {}
       PrimState(int si, vector<bool> vi, vector<const Element*> ci,
@@ -158,7 +158,7 @@ class PrimState {
                 #endif
                 circuit(cir) {
                    startFrom.resize(size,0);
-                   used.clear();
+//                   used.clear();
                 }
       PrimState shrink(int u, const Element* e) {
          PrimState ret = *this;

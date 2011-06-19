@@ -3,7 +3,7 @@ YACC		= bison
 LEX_FLAG  = -Pparse
 YACC_FLAG = -d -p parse
 
-CXX       = g++ -D__PARALLEL__ -lpthread
+CXX       = g++ -D__ELIMINATION__ -D__PARALLEL__ -lpthread
 #CFLAGS    = -g -Iinclude
 CFLAGS	 = -O3 -Iinclude -Wall
 CSRCS     = $(wildcard src/*.cpp)

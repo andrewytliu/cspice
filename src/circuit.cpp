@@ -9,7 +9,7 @@
 #include <queue>
 #include <pthread.h>
 
-const int threadcnt = 20;
+const int threadcnt = 4;
 
 pthread_mutex_t __queMutex;
 pthread_mutex_t __treeMutex;
@@ -99,7 +99,6 @@ void* processTask(void *arg) {
    /* task: shrink some edge to derive next PrimState */
    int v;
    PrimState ps = *((PrimState*)arg);
-   vector<int> curFrom = ps.startFrom;
 
    for(v=0; v<ps.size; v++)
       if(!ps.visited[v]) break;
@@ -121,11 +120,11 @@ void* processTask(void *arg) {
       vector<Connection>& adj = ps.circuit->nodes[v]->connections;
       int amountOfConnections = adj.size();
       for(int i=0 ; i<amountOfConnections ; i++) {
+         if(ps.used[v][i]) continue;
+         ps.used[v][i]=1;
          unsigned desId = adj[i].destination->nodeId;
          unsigned u = ps.circuit->getIndexById(desId);
          if(!ps.visited[u]) continue;
-         if(curFrom[u]>v) continue;
-         ps.startFrom[u]=v+1;
 //         printf("[%d %d, %d %d] ",u,ps.startFrom[u],v,ps.startFrom[v]);
 //         cout << adj[i].element->formula() << endl;
 //         if(ps.used.find(make_pair(v,i))!=ps.used.end()) continue;
@@ -143,6 +142,15 @@ void* processTask(void *arg) {
    return NULL;
 }
 
+void* dfsAdapter(void* arg) {
+   PrimState ps = *((PrimState*)arg);
+   ps.circuit->dfs(ps.size,ps.visited,ps.used,ps.current_tree,*(ps.result)
+                   #ifdef __ELIMINATION__
+                   ,*(ps.trees)
+                   #endif
+                   );
+   return NULL;
+}
 void Circuit::enumParallel(
       int size,
       vector<bool>& visited,
@@ -203,7 +211,26 @@ void Circuit::enumParallel(
          pthread_create(thHandles+i, NULL, processTask, (void*)(states+i));
       for(int i=0; i<startnum; i++)
          pthread_join(thHandles[i], NULL);
+      //if((int)__taskQue.size()>=threadcnt) break;
    }
+
+   /* parallel DFS */
+/*   int startnum = __taskQue.size();
+   printf("<startnum: %d>\n",startnum);
+   delete [] states;
+   free(thHandles);
+   states = new PrimState[startnum];
+   thHandles = (pthread_t*)malloc(startnum*sizeof(pthread_t));
+   for(int i=0; i<startnum; i++) {
+      states[i]=__taskQue.front();
+      __taskQue.pop();
+   }
+   for(int i=0; i<startnum; i++)
+      pthread_create(thHandles+i, NULL, dfsAdapter, (void*)(states+i));
+   for(int i=0; i<startnum; i++)
+      pthread_join(thHandles[i], NULL);
+
+puts("oh ya!");*/
 
    /* free pthread handles */
    free(thHandles);
@@ -213,7 +240,7 @@ void Circuit::enumParallel(
 
 }
 
-#else // no __PARALLEL__
+#endif // __PARALLEL__
 
 void Circuit::dfs(
       int size,
@@ -269,15 +296,20 @@ void Circuit::dfs(
    }
 
    if(done) {
+#ifdef __PARALLEL__
+      pthread_mutex_lock(&__treeMutex);
+#endif
 #ifdef __ELIMINATION__
       // check if elimination could be done
       elimSub(current_tree,result,trees);
 #else // __ELIMINATION__
       result.push_back(current_tree) ;
 #endif // __ELIMINATION__
+#ifdef __PARALLEL__
+      pthread_mutex_unlock(&__treeMutex);
+#endif
    }
 }
-#endif // __PARALLEL
 
 vector<vector<const Element*> > Circuit::enumTree(const Node * refNode) {
    vector<vector<const Element*> > result ;

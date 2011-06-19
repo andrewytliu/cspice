@@ -29,6 +29,7 @@ friend class Parser;
 friend class Simulator;
 #ifdef __PARALLEL__
 friend void* processTask(void*);
+friend void* dfsAdapter(void*);
 friend class PrimState;
 #endif
 public:
@@ -142,8 +143,7 @@ class PrimState {
       vector<pair<char, unsigned long long> >* trees;
       #endif
       Circuit* circuit; // original circuit
-      vector<int> startFrom; // next valid edge for v is from id
-//      set<pair<int,int> > used;
+      vector<vector<bool> > used;
       /*** functions ****/
       PrimState() {}
       PrimState(int si, vector<bool> vi, vector<const Element*> ci,
@@ -157,8 +157,10 @@ class PrimState {
                 trees(ti),
                 #endif
                 circuit(cir) {
-                   startFrom.resize(size,0);
-//                   used.clear();
+                   int i;
+                   used.resize(size);
+                   for(i=0;i<size;i++)
+                      used[i].resize(circuit->nodes[i]->connections.size(),0);
                 }
       PrimState shrink(int u, const Element* e) {
          PrimState ret = *this;

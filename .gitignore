@@ -10,3 +10,4 @@ src/parseLEX.cpp
 *.swp
 *.eps
 *.plt
+*.linkinfo

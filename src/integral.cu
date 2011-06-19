@@ -42,15 +42,15 @@ __global__ void freqKernel(double *freq, double *real, double *image,
                            double *tf_num, int tf_num_size,
                            double *tf_den, int tf_den_size,
                            double start, double ratio) {
-   double cur_freq = start * pow(ratio, blockIdx.x);
+   double cur_freq = start * powf(ratio, blockIdx.x);
    freq[blockIdx.x] = cur_freq;
-   double num_r, num_i, dem_r, dem_i;
+   double num_r, num_i, den_r, den_i;
    gpuEval(tf_num, tf_num_size, cur_freq, &num_r, &num_i);
-   gpuEval(tf_dem, tf_dem_size, cur_freq, &dem_r, &dem_i);
-   complexDiv(num_r, num_i, dem_r, dem_i, &real[blockIdx.x] &image[blockIdx.x]);
+   gpuEval(tf_den, tf_den_size, cur_freq, &den_r, &den_i);
+   complexDiv(&num_r, &num_i, &den_r, &den_i, &real[blockIdx.x], &image[blockIdx.x]);
 }
 
-void freqGpuSimulate(SimulateConfig &config, TransferFunction &tf, vector<pair<double,complex<double> > > &result) {
+void freqGpuSimulate(SimulateConfig &config, Simulator::TransferFunction &tf, vector<pair<double,complex<double> > > &result) {
   double ratio = exp(log(10.0) / config.step);
   double kernels = log(config.end / config.start) / log(ratio);
   double host_PI = acos(-1.0);
@@ -83,7 +83,7 @@ void freqGpuSimulate(SimulateConfig &config, TransferFunction &tf, vector<pair<d
   cudaMemcpy(image, image_c, kernels * sizeof(double), cudaMemcpyDeviceToHost);
 
   for(int i = 0; i < kernels; ++i)
-    result.push_back(pair<double , complex<double> >(freq[i], complex<double>(real[i], image[i])) ;
+    result.push_back(pair<double , complex<double> >(freq[i], complex<double>(real[i], image[i]))) ;
 
   cudaFree(freq_c);
   cudaFree(real_c);

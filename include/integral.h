@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "simulator.h"
 
-void freqGpuSimulate(SimulateConfig&, TransferFunction&, vector<pair<double,complex<double> > >&);
+void freqGpuSimulate(SimulateConfig&, Simulator::TransferFunction&, vector<pair<double,complex<double> > >&);
 
 #endif /* __INTEGRAL_H__ */
 

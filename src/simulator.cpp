@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 
 #include "utils.h"
 #include "simulator.h"
@@ -148,11 +149,34 @@ void Simulator::simulate(SimulateConfig& config) {
          throw SimulateException(msg.str()) ;
       }
       vector<pair<double,complex<double> > > result ;
-#ifdef CUDA
-      freqGpuSimulate(config, tf, result);
-#else
-      double ratio = exp(log(10.0) / config.step) ;
 
+      double ratio = exp(log(10.0) / config.step) ;
+#ifdef CUDA
+      int kernels = (int)(log(config.end / config.start) / log(ratio));
+      
+      double *freq, *real, *image, *tf_num, *tf_den;
+      tf_num = (double*)malloc(tf.num.size() * sizeof(double));
+      tf_den = (double*)malloc(tf.den.size() * sizeof(double));
+      freq = (double*)malloc(kernels * sizeof(double));
+      real = (double*)malloc(kernels * sizeof(double));
+      image = (double*)malloc(kernels * sizeof(double));
+
+      for(size_t i = 0; i < tf.num.size(); ++i)
+         tf_num[i] = tf.num[i];
+      for(size_t i = 0; i < tf.den.size(); ++i)
+         tf_den[i] = tf.den[i];
+      
+      freqGpuSimulate(freq, real, image, tf_num, tf.num.size(), tf_den, tf.den.size(), config.start, ratio, kernels);
+
+      for(int i = 0; i < kernels; ++i)
+         result.push_back(pair<double , complex<double> >(freq[i], complex<double>(real[i], image[i]))) ;
+
+      free(freq);
+      free(real);
+      free(image);
+      free(tf_num);
+      free(tf_den);
+#else
       for (double freq = config.start ; freq <= config.end ; freq *= ratio) {
          result.push_back(pair<double , complex<double> >(freq , evalFormula(tf.num , freq) / evalFormula(tf.den , freq))) ;
       }

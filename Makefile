@@ -13,16 +13,13 @@ CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
 #COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
 
-COBJS     = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o obj/parseYY.o obj/integral.o
+COBJS   = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o obj/parseYY.o
+CUOBJS  = $(COBJS) obj/integral.o
 
 default : original
-original : LD = $(CXX)
-original : LDFLAGS = $(CFLAGS)
-cuda : LD = $(CUDA)
-cuda : LDFLAGS = $(CUDAFLAGS)
 cuda : CU = -DCUDA
-original cuda : ALL
-ALL : bin/cspice
+original : bin/cspice 
+cuda : bin/cspice-cuda
 
 src/parseLEX.cpp: src/parser.l src/parseYY.hpp
 	@echo "> lexing: $<"
@@ -38,7 +35,10 @@ src/parseYY.cpp src/parseYY.hpp: src/parser.y
 obj/parseYY.o : src/parser.cpp
 
 bin/cspice : $(COBJS)
-	$(LD) $(LDFLAGS) -o $@ $(COBJS)
+	$(CXX) $(CFLAGS) -o $@ $(COBJS)
+
+bin/cspice-cuda : $(CUOBJS)
+	$(CUDA) $(CUDAFLAGS) -o $@ $(CUOBJS)
 
 obj/%.o : src/%.c
 	$(CXX) $(CFLAGS) -c -o $@ $<

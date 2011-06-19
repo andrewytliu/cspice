@@ -5,6 +5,18 @@
 #include "circuit.h"
 #include "utils.h"
 
+#ifdef __PARALLEL__
+#include <queue>
+#include <pthread.h>
+
+const int threadcnt = 20;
+
+pthread_mutex_t __queMutex;
+pthread_mutex_t __treeMutex;
+queue<PrimState> __taskQue;
+
+#endif // __PARALLEL__
+
 using namespace std ;
 #ifdef __ELIMINATION__
 template<class T>

@@ -224,7 +224,32 @@ void Simulator::simulate(SimulateConfig& config) {
          complex<double> v = evalFormula(it->second.num , 0) / evalFormula(it->second.den , 0) ;
          prevVOUT += abs(v) * it->first->prevValue() ;
          if (abs(it->first->pulseValue()) > 0) {
+#ifdef CUDA
+            float *times_c = new float[times.size()];
+            float *tf_num_c = new float[it->second.num.size()];
+            float *tf_den_c = new float[it->second.den.size()];
+            float *result_c = new float[times.size()];
+
+            for(size_t i = 0; i < times.size(); ++i)
+              times_c[i] = (float)times[i];
+            for(size_t i = 0; i < it->second.num.size(); ++i)
+              tf_num_c[i] = (float)it->second.num[i];
+            for(size_t i = 0; i < it->second.den.size(); ++i)
+              tf_den_c[i] = (float)it->second.den[i];
+
+            timeGpuSimulate(times_c, times.size(), tf_num_c, it->second.num.size(), tf_den_c, it->second.den.size(), result_c);
+
+            vector<double> vout_tmp;
+            for(size_t i = 0; i < times.size(); ++i)
+               vout_tmp.push_back((double)result_c[i]);
+
+            delete [] times_c;
+            delete [] tf_num_c;
+            delete [] tf_den_c;
+            delete [] result_c;
+#else
             vector<double> vout_tmp = numericalIntegration(times , it->second) ;
+#endif
             for(unsigned i = 0 ; i < size ; ++ i) {
                vout[i] += vout_tmp[i] * it->first->pulseValue() ;
             }

@@ -78,3 +78,40 @@ void freqGpuSimulate(float *freq, float *real, float *image, float *tf_num, int 
   cudaFree(tf_den_c);
 }
 
+__global__ void gpuIntegral(float *times, float *tf_num, int tf_num_s, float *tf_den, int tf_den_s, float *result) {
+  int t = blockIdx.x + 1;
+  float lower, upper;
+  float num_r, num_i, den_r, den_i, dummy_i;
+  gpuEval(tf_num, tf_num_s, times[t-1], &num_r, &num_i);
+  gpuEval(tf_den, tf_den_s, times[t-1], &den_r, &den_i);
+  complexDiv(&num_r, &num_i, &den_r, &den_i, &lower, &dummy_i);
+  gpuEval(tf_num, tf_num_s, times[t], &num_r, &num_i);
+  gpuEval(tf_den, tf_den_s, times[t], &den_r, &den_i);
+  complexDiv(&num_r, &num_i, &den_r, &den_i, &upper, &dummy_i);
+  
+  result[t] = (lower + upper) * (times[t] - times[t-1]) / 2;
+}
+
+void timeGpuSimulate(float *times, int times_s, float *tf_num, int tf_num_s, float *tf_den,
+                     int tf_den_s, float *result) {
+  float *result_c, *tf_num_c, *tf_den_c, *times_c;
+  cudaMalloc((void**) &result_c, times_s * sizeof(float));
+  cudaMalloc((void**) &times_c, times_s * sizeof(float));
+  cudaMalloc((void**) &tf_num_c, tf_num_s * sizeof(float));
+  cudaMalloc((void**) &tf_den_c, tf_den_s * sizeof(float));
+  
+  cudaMemcpy(times_c, times, times_s * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(tf_num_c, tf_num, tf_num_s * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(tf_den_c, tf_den, tf_den_s * sizeof(float), cudaMemcpyHostToDevice);
+  gpuIntegral <<< (times_s-1), 1 >>> (times_c, tf_num_c, tf_num_s, tf_den_c, tf_den_s, result_c);
+  cudaMemcpy(result, result_c, times_s * sizeof(float), cudaMemcpyDeviceToHost);
+  
+  result[0] = 0.0;
+  for(int i = 1; i < times_s; ++i)
+    result[i] += result[i-1];
+
+  cudaFree(result_c);
+  cudaFree(times_c);
+  cudaFree(tf_num_c);
+  cudaFree(tf_den_c);
+}

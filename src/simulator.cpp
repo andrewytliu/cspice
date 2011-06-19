@@ -4,6 +4,9 @@
 
 #include "utils.h"
 #include "simulator.h"
+#ifdef CUDA
+#include "integral.h"
+#endif
 
 using namespace std ;
 
@@ -145,11 +148,15 @@ void Simulator::simulate(SimulateConfig& config) {
          throw SimulateException(msg.str()) ;
       }
       vector<pair<double,complex<double> > > result ;
+#ifdef CUDA
+      freqGpuSimulate(config, tf, result);
+#else
       double ratio = exp(log(10.0) / config.step) ;
 
       for (double freq = config.start ; freq <= config.end ; freq *= ratio) {
          result.push_back(pair<double , complex<double> >(freq , evalFormula(tf.num , freq) / evalFormula(tf.den , freq))) ;
       }
+#endif
       plotFreq(result, config);
    } else if (config.type == TIME) {
       vector<pair<double , double> > result ;

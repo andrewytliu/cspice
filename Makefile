@@ -3,6 +3,8 @@ YACC		= bison
 LEX_FLAG  = -Pparse
 YACC_FLAG = -d -p parse
 
+CUDA      = nvcc
+
 CXX       = g++
 #CFLAGS    = -g -Iinclude
 CFLAGS	 = -O3 -Iinclude -Wall
@@ -10,7 +12,7 @@ CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
 #COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
 
-COBJS     = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o obj/parseYY.o
+COBJS     = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o obj/parseYY.o obj/integral.o
 
 all : bin/cspice
 
@@ -35,6 +37,9 @@ obj/%.o : src/%.c
 
 obj/%.o : src/%.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
+
+obj/%.o : src/%.cu
+	$(CUDA) $(CFLAGS) -c -o $@ $<
 
 $(COBJS) : $(CHDRS)
 

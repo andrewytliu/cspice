@@ -36,6 +36,130 @@ void Circuit::propagateEquivalents(unsigned index , vector<bool>& visited) {
    }
 }
 
+#ifdef __PARALLEL__
+
+void* processTask(void *arg) {
+   /* task: shrink some edge to derive next PrimState */
+   int v;
+   PrimState ps = *((PrimState*)arg);
+
+   for(v=0; v<ps.size; v++)
+      if(!ps.visited[v]) break;
+   if(v==ps.size) {
+      //printf("add tree!\n");
+      // add spanning tree to result, lock is needed
+      pthread_mutex_lock(&__treeMutex);
+      #ifdef __ELIMINATION__
+      // TODO:
+      ps.result->push_back(ps.current_tree) ;
+      #else
+      ps.result->push_back(ps.current_tree) ;
+      #endif
+      pthread_mutex_unlock(&__treeMutex);
+      return NULL;
+   }
+
+   for(v=0; v<ps.size; v++) {
+      if(ps.visited[v]) continue;
+      vector<Connection>& adj = ps.circuit->nodes[v]->connections;
+      int amountOfConnections = adj.size();
+      for(int i=0 ; i<amountOfConnections ; i++) {
+         unsigned desId = adj[i].destination->nodeId;
+         unsigned u = ps.circuit->getIndexById(desId);
+         if(!ps.visited[u]) continue;
+///         if(ps.startFrom[u]>v) continue;
+//         ps.startFrom[u]=v+1;
+         if(ps.used.find(make_pair(v,i))!=ps.used.end()) continue;
+         ps.used.insert(make_pair(v,i));
+         PrimState ns = ps.shrink(v,adj[i].element);
+         //ns.startFrom[v] = i+1;
+         // push new state in queue, lock is needed
+         pthread_mutex_lock(&__queMutex);
+         __taskQue.push(ns);
+         pthread_mutex_unlock(&__queMutex);
+         //ps.startFrom[v] = amountOfConnections;
+      }
+   }
+
+   return NULL;
+}
+
+void Circuit::enumParallel(
+   int size,
+   vector<bool>& visited,
+   vector<const Element*>& current_tree,
+   vector<vector<const Element*> >& result
+   #ifdef __ELIMINATION__
+   ,vector<pair<char , unsigned long long> >& trees
+   #endif
+) {
+
+   // for debug only.. print the graph
+   puts("list of edges:");
+   for(int v=0;v<size;v++) {
+      vector<Connection>& adj=nodes[v]->connections;
+      for(int i=0;i<(int)adj.size();i++) {
+         int desId = adj[i].destination->nodeId;
+         int u = getIndexById(desId);
+         printf("<%d %d> ",v,u);
+         cout << adj[i].element->formula() << endl;
+      }
+   }
+   puts("list of equivalents:");
+   for(int v=0;v<size;v++) {
+      vector<Equivalent>& eq=nodes[v]->equivalents ;
+      for(int i=0;i<(int)eq.size();i++) {
+         int desId = eq[i].node->nodeId;
+         int u = getIndexById(desId);
+         printf("<%d %d>\n",v,u);
+      }
+   }
+   puts("--");
+
+   /* initialize task queue */
+   while(!__taskQue.empty())
+      __taskQue.pop();
+   #ifdef __ELIMINATION__
+   __taskQue.push(PrimState(size, visited, current_tree, &result, &trees, this));
+   #else
+   __taskQue.push(PrimState(size, visited, current_tree, &result, this));
+   #endif
+   pthread_mutex_init(&__queMutex, NULL);
+   pthread_mutex_init(&__treeMutex, NULL);
+
+   /* start parallel threads */
+   // process tasks in "phase"
+   pthread_t* thHandles = (pthread_t*)malloc(threadcnt*sizeof(pthread_t));
+   PrimState* states = new PrimState[threadcnt];
+   
+   while(__taskQue.size()) {
+      int startnum = ((int)__taskQue.size()<threadcnt? (int)__taskQue.size():threadcnt);
+      //printf("<%d %d>\n",__taskQue.size(),startnum);
+      // start how many thread?
+      for(int i=0; i<startnum; i++) {
+         states[i]=__taskQue.front();
+         __taskQue.pop();
+      }
+      for(int i=0; i<startnum; i++)
+         pthread_create(thHandles+i, NULL, processTask, (void*)(states+i));
+      for(int i=0; i<startnum; i++)
+         pthread_join(thHandles[i], NULL);
+   }
+
+   puts("done1");
+   /* free pthread handles */
+   free(thHandles);
+   delete [] states;
+   pthread_mutex_destroy(&__queMutex);
+   pthread_mutex_destroy(&__treeMutex);
+ //  pthread_exit(NULL);
+
+   puts("done2");
+
+}
+
+#else // no __PARALLEL__
+
 void Circuit::dfs(
    int size,
    vector<bool>& visited,
@@ -136,6 +260,7 @@ void Circuit::dfs(
 #endif // __ELIMINATION__
    }
 }
+#endif // __PARALLEL
 
 vector<vector<const Element*> > Circuit::enumTree(const Node * refNode) {
    vector<vector<const Element*> > result ;
@@ -157,11 +282,24 @@ vector<vector<const Element*> > Circuit::enumTree(const Node * refNode) {
    visited[refNodeIndex] = true ;
    propagateEquivalents(refNodeIndex , visited) ;
 
-#ifdef __ELIMINATION__
-   this->dfs(size, visited , used , current_tree , result , trees) ;
+#ifdef __PARALLEL__
+
+  #ifdef __ELIMINATION__
+     this->enumParallel(size, visited , current_tree , result , trees) ;
+  #else
+     this->enumParallel(size, visited , current_tree , result) ;
+  #endif
+
 #else
-   this->dfs(size, visited , used , current_tree , result) ;
-#endif
+
+  #ifdef __ELIMINATION__
+     this->dfs(size, visited , used , current_tree , result , trees) ;
+  #else
+     this->dfs(size, visited , used , current_tree , result) ;
+  #endif
+
+#endif // __PARALLEL__
+
    return result ;
 }
 

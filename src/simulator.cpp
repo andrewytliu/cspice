@@ -154,22 +154,22 @@ void Simulator::simulate(SimulateConfig& config) {
 #ifdef CUDA
       int kernels = (int)(log(config.end / config.start) / log(ratio));
       
-      double *freq, *real, *image, *tf_num, *tf_den;
-      tf_num = (double*)malloc(tf.num.size() * sizeof(double));
-      tf_den = (double*)malloc(tf.den.size() * sizeof(double));
-      freq = (double*)malloc(kernels * sizeof(double));
-      real = (double*)malloc(kernels * sizeof(double));
-      image = (double*)malloc(kernels * sizeof(double));
+      float *freq, *real, *image, *tf_num, *tf_den;
+      tf_num = (float*)malloc(tf.num.size() * sizeof(float));
+      tf_den = (float*)malloc(tf.den.size() * sizeof(float));
+      freq = (float*)malloc(kernels * sizeof(float));
+      real = (float*)malloc(kernels * sizeof(float));
+      image = (float*)malloc(kernels * sizeof(float));
 
       for(size_t i = 0; i < tf.num.size(); ++i)
-         tf_num[i] = tf.num[i];
+         tf_num[i] = (float)tf.num[i];
       for(size_t i = 0; i < tf.den.size(); ++i)
-         tf_den[i] = tf.den[i];
+         tf_den[i] = (float)tf.den[i];
       
       freqGpuSimulate(freq, real, image, tf_num, tf.num.size(), tf_den, tf.den.size(), config.start, ratio, kernels);
 
       for(int i = 0; i < kernels; ++i)
-         result.push_back(pair<double , complex<double> >(freq[i], complex<double>(real[i], image[i]))) ;
+         result.push_back(pair<double , complex<double> >(freq[i], complex<double>((double)real[i], (double)image[i]))) ;
 
       free(freq);
       free(real);

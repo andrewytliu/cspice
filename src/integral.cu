@@ -4,24 +4,24 @@
 
 #include "integral.h"
 
-__constant__ double PI;
+__constant__ float PI;
 
-__device__ void complexDiv(double *num_r, double *num_i,
-                           double *dem_r, double *dem_i,
-                           double *res_r, double *res_i) {
+__device__ void complexDiv(float *num_r, float *num_i,
+                           float *dem_r, float *dem_i,
+                           float *res_r, float *res_i) {
    *res_r = ((*num_r)*(*dem_r)+(*num_i)*(*dem_i)) / ((*dem_r)*(*dem_r)+(*dem_i)*(*dem_i));
    *res_i = ((*num_i)*(*dem_r)-(*num_r)*(*dem_i)) / ((*dem_r)*(*dem_r)+(*dem_i)*(*dem_i));
 }
 
 
-__device__ void gpuEval(double *coefficients, int size, double freq,
-                        double *real, double *image) {
-   double omega = 2.0 * PI * freq ;
+__device__ void gpuEval(float *coefficients, int size, float freq,
+                        float *real, float *image) {
+   float omega = 2.0 * PI * freq ;
    *image = 0.0;
    *real = 0.0 ;
 
    int maxOrder = size;
-   double s = 1 ;
+   float s = 1 ;
 
    for(int order = 0 ; order < maxOrder ; ++ order) {
       // i^0 = 1, i^1 = i, i^2 = -1, i^3 = -i
@@ -39,37 +39,37 @@ __device__ void gpuEval(double *coefficients, int size, double freq,
    }
 }
 
-__global__ void freqKernel(double *freq, double *real, double *image,
-                           double *tf_num, int tf_num_size,
-                           double *tf_den, int tf_den_size,
-                           double start, double ratio) {
+__global__ void freqKernel(float *freq, float *real, float *image,
+                           float *tf_num, int tf_num_size,
+                           float *tf_den, int tf_den_size,
+                           float start, float ratio) {
    int index = blockIdx.x;
    //printf("GPU: %d\n", index);
-   double cur_freq = start * powf(ratio, index);
+   float cur_freq = start * powf(ratio, index);
    freq[index] = cur_freq;
-   double num_r, num_i, den_r, den_i;
+   float num_r, num_i, den_r, den_i;
    gpuEval(tf_num, tf_num_size, cur_freq, &num_r, &num_i);
    gpuEval(tf_den, tf_den_size, cur_freq, &den_r, &den_i);
    complexDiv(&num_r, &num_i, &den_r, &den_i, &real[index], &image[index]);
 }
 
-void freqGpuSimulate(double *freq, double *real, double *image, double *tf_num, int tf_num_s, double *tf_den, int tf_den_s, double start, double ratio, int kernels) {
-  double host_PI = acos(-1.0);
+void freqGpuSimulate(float *freq, float *real, float *image, float *tf_num, int tf_num_s, float *tf_den, int tf_den_s, float start, float ratio, int kernels) {
+  float host_PI = acos(-1.0);
 
-  double *freq_c, *real_c, *image_c, *tf_num_c, *tf_den_c;
+  float *freq_c, *real_c, *image_c, *tf_num_c, *tf_den_c;
   cudaMemcpyToSymbol("PI", &host_PI, sizeof(host_PI));
-  cudaMalloc((void**) &freq_c,  kernels * sizeof(double));
-  cudaMalloc((void**) &real_c,  kernels * sizeof(double));
-  cudaMalloc((void**) &image_c, kernels * sizeof(double));
-  cudaMalloc((void**) &tf_num_c, tf_num_s * sizeof(double));
-  cudaMalloc((void**) &tf_den_c, tf_den_s * sizeof(double));
+  cudaMalloc((void**) &freq_c,  kernels * sizeof(float));
+  cudaMalloc((void**) &real_c,  kernels * sizeof(float));
+  cudaMalloc((void**) &image_c, kernels * sizeof(float));
+  cudaMalloc((void**) &tf_num_c, tf_num_s * sizeof(float));
+  cudaMalloc((void**) &tf_den_c, tf_den_s * sizeof(float));
 
-  cudaMemcpy(tf_num_c, tf_num, tf_num_s * sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy(tf_den_c, tf_den, tf_den_s * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(tf_num_c, tf_num, tf_num_s * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(tf_den_c, tf_den, tf_den_s * sizeof(float), cudaMemcpyHostToDevice);
   freqKernel <<< kernels, 1 >>> (freq_c, real_c, image_c, tf_num_c, tf_num_s, tf_den_c, tf_den_s, start, ratio);
-  cudaMemcpy(freq, freq_c, kernels * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(real, real_c, kernels * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(image, image_c, kernels * sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(freq, freq_c, kernels * sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(real, real_c, kernels * sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(image, image_c, kernels * sizeof(float), cudaMemcpyDeviceToHost);
 
   cudaFree(freq_c);
   cudaFree(real_c);

@@ -9,7 +9,7 @@
 #include <queue>
 #include <pthread.h>
 
-const int threadcnt = 20;
+const int threadcnt = 4;
 
 pthread_mutex_t __queMutex;
 pthread_mutex_t __treeMutex;
@@ -116,6 +116,7 @@ void* processTask(void *arg) {
       return NULL;
    }
 
+   queue<PrimState> tmpq;
    for(v=0; v<ps.size; v++) {
       if(ps.visited[v]) continue;
       vector<Connection>& adj = ps.circuit->nodes[v]->connections;
@@ -133,12 +134,22 @@ void* processTask(void *arg) {
          PrimState ns = ps.shrink(v,adj[i].element);
          //ns.startFrom[v] = i+1;
          // push new state in queue, lock is needed
-         pthread_mutex_lock(&__queMutex);
-         __taskQue.push(ns);
-         pthread_mutex_unlock(&__queMutex);
+//         pthread_mutex_lock(&__queMutex);
+         tmpq.push(ns);
+//         pthread_mutex_lock(&__queMutex);
+//         __taskQue.push(ns);
+//         pthread_mutex_unlock(&__queMutex);
          //ps.startFrom[v] = amountOfConnections;
       }
    }
+
+   pthread_mutex_lock(&__queMutex);
+   while(!tmpq.empty()) {
+//      puts("?");
+      __taskQue.push(tmpq.front());
+      tmpq.pop();
+   }
+   pthread_mutex_unlock(&__queMutex);
 
    return NULL;
 }
@@ -212,8 +223,7 @@ void Circuit::enumParallel(
    pthread_mutex_destroy(&__treeMutex);
 
 }
-
-#else // no __PARALLEL__
+#endif // no __PARALLEL__
 
 void Circuit::dfs(
       int size,

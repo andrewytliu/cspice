@@ -120,11 +120,11 @@ void* processTask(void *arg) {
       vector<Connection>& adj = ps.circuit->nodes[v]->connections;
       int amountOfConnections = adj.size();
       for(int i=0 ; i<amountOfConnections ; i++) {
-         if(ps.used[v][i]) continue;
-         ps.used[v][i]=1;
          unsigned desId = adj[i].destination->nodeId;
          unsigned u = ps.circuit->getIndexById(desId);
          if(!ps.visited[u]) continue;
+         if(ps.used[v][i]) continue;
+         ps.used[v][i]=1;
 //         printf("[%d %d, %d %d] ",u,ps.startFrom[u],v,ps.startFrom[v]);
 //         cout << adj[i].element->formula() << endl;
 //         if(ps.used.find(make_pair(v,i))!=ps.used.end()) continue;
@@ -211,11 +211,11 @@ void Circuit::enumParallel(
          pthread_create(thHandles+i, NULL, processTask, (void*)(states+i));
       for(int i=0; i<startnum; i++)
          pthread_join(thHandles[i], NULL);
-      //if((int)__taskQue.size()>=threadcnt) break;
+      if((int)__taskQue.size()>=threadcnt) break;
    }
 
    /* parallel DFS */
-/*   int startnum = __taskQue.size();
+   int startnum = __taskQue.size();
    printf("<startnum: %d>\n",startnum);
    delete [] states;
    free(thHandles);
@@ -230,7 +230,7 @@ void Circuit::enumParallel(
    for(int i=0; i<startnum; i++)
       pthread_join(thHandles[i], NULL);
 
-puts("oh ya!");*/
+//puts("oh ya!");
 
    /* free pthread handles */
    free(thHandles);

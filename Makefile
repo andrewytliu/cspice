@@ -20,7 +20,10 @@ default : original
 cuda : EXTRA = -D__CUDA__
 parallel : EXTRA = -D__CUDA__ -D__ELIMINATION__ -D__PARALLEL__ -lpthread
 pthread : EXTRA = -D__ELIMINATION__ -D__PARALLEL__ -lpthread
+
 original : bin/cspice
+parallel : bin/cspice-parallel
+pthread : bin/cspice-pthread
 cuda : bin/cspice-cuda
 
 src/parseLEX.cpp: src/parser.l src/parseYY.hpp

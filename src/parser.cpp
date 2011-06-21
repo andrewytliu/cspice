@@ -60,7 +60,7 @@ void Parser::addC(const char * name , int n1 , int n2 , double v) {
 void Parser::addV(const char * name , int n1 , int n2 , double v1 , double v2) {
    if(n1 == n2) {
       if(v1 != 0.0 || v2 != 0.0) {
-         throw ParseError("Illigal voltage source: " + string(name)) ;
+         throw ParseError("Illegal voltage source: " + string(name)) ;
       }
    }
 

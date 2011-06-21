@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const int loopcnt = 8;
-
 inline double frand() {
    return 1.0;
    return (double)rand()/RAND_MAX;
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
-   int i;
-   int id=0;
+   if(argc != 3) {
+      printf("USAGE: %s [LOOP COUNT] [OUTPUT FILE]", argv[0]);
+      return 0;
+   }
+
+   int i, loopcnt = atoi(argv[1]), id = 1;
    srand(514);
-   freopen("infiniteRH.netlist","w",stdout);
+   freopen(argv[2],"w",stdout);
    printf("VIN 1 0 0 1m\n");
    printf("OUT 7 0\n");
    for(i=0;i<loopcnt;i++) {
@@ -25,3 +27,4 @@ int main(void)
    printf("TIME 0.00 25.0 0.5 time.eps\n");
    return 0;
 }
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+# USAGE: run [benchmark] [program]
+
+for i in {1..10}
+do
+  echo "Case $i:"
+  $1 $i $i.netlist
+  time $2 $i.netlist $i.plt | grep real
+  rm $i.netlist $i.plt
+done

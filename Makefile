@@ -63,5 +63,5 @@ obj/%.o : src/%.cu
 $(COBJS) : $(CHDRS)
 
 clean:
-	-rm -f obj/* bin/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
+	-rm -f obj/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
 

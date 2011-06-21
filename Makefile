@@ -18,8 +18,8 @@ CUOBJS  = $(COBJS) obj/integral.o
 
 default : original
 cuda : EXTRA = -D__CUDA__
-parallel : EXTRA = -D__CUDA__ -D__ELIMINATION__ -D__PARALLEL__ -lpthread
-pthread : EXTRA = -D__ELIMINATION__ -D__PARALLEL__ -lpthread
+parallel : EXTRA = -D__CUDA__ -D__PARALLEL__ -lpthread
+pthread : EXTRA = -D__PARALLEL__ -lpthread
 
 original : bin/cspice
 parallel : bin/cspice-parallel

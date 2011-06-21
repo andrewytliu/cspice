@@ -17,7 +17,7 @@ int main(int argc, char** argv)
    srand(514);
    freopen(argv[2],"w",stdout);
    printf("VIN 1 0 0 1m\n");
-   printf("OUT 7 0\n");
+   printf("OUT %d 0\n", loopcnt*2+1);
    for(i=0;i<loopcnt;i++) {
       printf("R%d %d %d %.2lf\n",id++,i*2,i*2+2,frand());
       printf("R%d %d %d %.2lf\n",id++,i*2+1,i*2+3,frand());

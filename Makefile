@@ -1,5 +1,5 @@
-LEX	  = flex
-YACC	  = bison
+LEX       = flex
+YACC      = bison
 LEX_FLAG  = -Pparse
 YACC_FLAG = -d -p parse
 
@@ -7,7 +7,7 @@ CUDA      = nvcc
 CXX       = g++
 
 #CFLAGS    = -g -Iinclude
-CFLAGS	  = -O3 -Iinclude -Wall $(EXTRA)
+CFLAGS    = -O3 -Iinclude -Wall $(EXTRA)
 CUDAFLAGS = -O3 -Iinclude $(EXTRA)#--device-emulation
 CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
@@ -17,8 +17,8 @@ COBJS   = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o ob
 CUOBJS  = $(COBJS) obj/integral.o
 
 default : original
-cuda : EXTRA = -DCUDA
-parallel : EXTRA = -DCUDA -D__ELIMINATION__ -D__PARALLEL__ -lpthread
+cuda : EXTRA = -D__CUDA__
+parallel : EXTRA = -D__CUDA__ -D__ELIMINATION__ -D__PARALLEL__ -lpthread
 pthread : EXTRA = -D__ELIMINATION__ -D__PARALLEL__ -lpthread
 original : bin/cspice
 cuda : bin/cspice-cuda

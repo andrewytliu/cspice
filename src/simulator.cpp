@@ -5,7 +5,7 @@
 
 #include "utils.h"
 #include "simulator.h"
-#ifdef CUDA
+#ifdef __CUDA__
 #include "integral.h"
 #endif
 
@@ -151,9 +151,9 @@ void Simulator::simulate(SimulateConfig& config) {
       vector<pair<double,complex<double> > > result ;
 
       double ratio = exp(log(10.0) / config.step) ;
-#ifdef CUDA
+#ifdef __CUDA__
       int kernels = (int)(log(config.end / config.start) / log(ratio));
-      
+
       float *freq, *real, *image, *tf_num, *tf_den;
       tf_num = (float*)malloc(tf.num.size() * sizeof(float));
       tf_den = (float*)malloc(tf.den.size() * sizeof(float));
@@ -165,7 +165,7 @@ void Simulator::simulate(SimulateConfig& config) {
          tf_num[i] = (float)tf.num[i];
       for(size_t i = 0; i < tf.den.size(); ++i)
          tf_den[i] = (float)tf.den[i];
-      
+
       freqGpuSimulate(freq, real, image, tf_num, tf.num.size(), tf_den, tf.den.size(), config.start, ratio, kernels);
 
       for(int i = 0; i < kernels; ++i)
@@ -224,7 +224,7 @@ void Simulator::simulate(SimulateConfig& config) {
          complex<double> v = evalFormula(it->second.num , 0) / evalFormula(it->second.den , 0) ;
          prevVOUT += abs(v) * it->first->prevValue() ;
          if (abs(it->first->pulseValue()) > 0) {
-#ifdef CUDA
+#ifdef __CUDA__
             float *times_c = new float[times.size()];
             float *tf_num_c = new float[it->second.num.size()];
             float *tf_den_c = new float[it->second.den.size()];

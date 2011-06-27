@@ -9,7 +9,9 @@
 #include <queue>
 #include <pthread.h>
 
-const int threadcnt = 4;
+#ifndef threadcnt
+#define threadcnt 6
+#endif
 
 pthread_mutex_t __queMutex;
 pthread_mutex_t __treeMutex;
@@ -216,7 +218,8 @@ void Circuit::enumParallel(
 
    /* parallel DFS */
    int startnum = __taskQue.size();
-   printf("<startnum: %d>\n",startnum);
+   printf("<threadcnt: %d>\n",threadcnt);
+//   printf("<startnum: %d>\n",startnum);
    delete [] states;
    free(thHandles);
    states = new PrimState[startnum];
@@ -229,8 +232,6 @@ void Circuit::enumParallel(
       pthread_create(thHandles+i, NULL, dfsAdapter, (void*)(states+i));
    for(int i=0; i<startnum; i++)
       pthread_join(thHandles[i], NULL);
-
-//puts("oh ya!");
 
    /* free pthread handles */
    free(thHandles);

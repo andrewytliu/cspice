@@ -10,6 +10,8 @@ Parser::Parser(const char * fname = NULL) {
 
    currentParser = this ;
 
+   printTimeElapsed();
+   fprintf(stderr,"+ parsing...\n");
    if (yyparse() != 0) {
 
    }

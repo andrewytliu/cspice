@@ -75,14 +75,14 @@ simulate:
 
 out:
       T_OUT T_INTEGER T_INTEGER {
-         printf("OUT %d %d \n" , $2,$3);
+//         printf("OUT %d %d \n" , $2,$3);
          currentParser->addOut($2 , $3) ;
       }
    ;
 
 resistor:
       T_RID T_INTEGER T_INTEGER value {
-         printf("%s %d %d %lf\n",$1,$2,$3,$4);
+//         printf("%s %d %d %lf\n",$1,$2,$3,$4);
          currentParser->addR($1 , $2 , $3 , $4) ;
          delete [] $1 ;
       }
@@ -90,7 +90,7 @@ resistor:
 
 inductor:
       T_LID T_INTEGER T_INTEGER value {
-         printf("%s %d %d %lf\n" ,$1,$2,$3,$4);
+//         printf("%s %d %d %lf\n" ,$1,$2,$3,$4);
          currentParser->addL($1 , $2 , $3 , $4) ;
          delete [] $1 ;
       }
@@ -98,7 +98,7 @@ inductor:
 
 capacitor:
       T_CID T_INTEGER T_INTEGER value {
-         printf("%s %d %d %lf\n" ,$1,$2,$3,$4);
+//         printf("%s %d %d %lf\n" ,$1,$2,$3,$4);
          currentParser->addC($1 , $2 , $3 , $4) ;
          delete [] $1 ;
       }
@@ -106,7 +106,7 @@ capacitor:
 
 vccs:
       T_GID T_INTEGER T_INTEGER T_INTEGER T_INTEGER value {
-         printf("%s %d %d %d %d %lf)\n",$1,$2,$3,$4,$5,$6) ;
+//         printf("%s %d %d %d %d %lf)\n",$1,$2,$3,$4,$5,$6) ;
          currentParser->addG($1 , $2 , $3 , $4 , $5 , $6) ;
          delete [] $1 ;
       }
@@ -114,12 +114,12 @@ vccs:
 
 vsrc:
       T_VSRC T_INTEGER T_INTEGER value       {
-         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$4);
+//         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$4);
          currentParser->addV($1 , $2 , $3 , $4 , $4) ;
          delete [] $1 ;
       }
    |  T_VSRC T_INTEGER T_INTEGER value value {
-         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$5);
+//         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$5);
          currentParser->addV($1 , $2 , $3 , $4 , $5) ;
          delete [] $1 ;
       }
@@ -127,12 +127,12 @@ vsrc:
 
 isrc:
       T_ISRC T_INTEGER T_INTEGER value       {
-         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$4);
+//         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$4);
          currentParser->addI($1 , $2 , $3 , $4 , $4) ;
          delete [] $1 ;
       }
    |  T_ISRC T_INTEGER T_INTEGER value value {
-         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$5);
+//         printf("%s %d %d %lf %lf\n",$1,$2,$3,$4,$5);
          currentParser->addI($1 , $2 , $3 , $4 , $5) ;
          delete [] $1 ;
       }
@@ -150,14 +150,14 @@ value:
 
 freq:
       T_FREQ value value T_INTEGER T_SRC T_FNAME {
-         printf("FREQ %lf %lf %d %s %s\n",$2,$3,$4,$5,$6);
+//         printf("FREQ %lf %lf %d %s %s\n",$2,$3,$4,$5,$6);
          currentParser->addFreqSwap($2 , $3 , $4 , $5 , $6) ;
       }
    ;
 
 time:
       T_TIME value value value T_FNAME {
-         printf("TIME %lf %lf %lf %s\n",$2,$3,$4,$5);
+//         printf("TIME %lf %lf %lf %s\n",$2,$3,$4,$5);
          currentParser->addTimeSwap($2 , $3 , $4 , $5) ;
       }
    ;

@@ -3,6 +3,7 @@
 
 #include "circuit.h"
 #include "simulator.h"
+#include "utils.h"
 #include <fstream>
 #include <string>
 #include <vector>

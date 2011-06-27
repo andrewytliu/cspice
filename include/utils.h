@@ -9,6 +9,8 @@
 
 using namespace std ;
 
+
+extern void printTimeElapsed();
 extern void printFormula(const vector<vector<const Element*> > & , ostream &) ;
 extern complex<double> evalFormula(const vector<double> & , const double&);
 extern vector<pair<int , double> > expandFormula(const vector<vector<const Element*> > &) ;

@@ -59,6 +59,8 @@ void Simulator::findFormula(const Source * src , TransferFunction& tf) {
    oH = _circuit->   getOutputHigh  () ;
    oL = _circuit->   getOutputLow   () ;
 
+   printTimeElapsed();
+   fprintf(stderr,"+ fetching spanning trees...\n");
    if (src->type() == Source::VSRC) {
       // 1. back up and remove all the elements leaving input_high
       vector<Connection> backUp ;
@@ -113,6 +115,8 @@ void Simulator::findFormula(const Source * src , TransferFunction& tf) {
 //   cout << endl ;
 
    // 5. expand formula
+   printTimeElapsed();
+   fprintf(stderr,"+ calulating formula & simulating...\n");
    tmp_den = expandFormula(denSpanningTrees) ;
    tmp_num = expandFormula(numSpanningTrees) ;
    // 6. adjust the order of num and den

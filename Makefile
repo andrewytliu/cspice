@@ -18,12 +18,17 @@ CUOBJS  = $(COBJS) obj/integral.o
 
 default : original
 cuda : EXTRA = -D__CUDA__
-parallel : EXTRA = -D__CUDA__ -D__PARALLEL__ -lpthread
-pthread : EXTRA = -D__PARALLEL__ -lpthread
+parallel : EXTRA = -D__CUDA__ -D__PARALLEL__ -lpthread -lrt
+
+ifdef threadcnt
+pthread : EXTRA = -D__PARALLEL__ -lpthread -lrt -Dthreadcnt=$(threadcnt)
+else
+pthread : EXTRA = -D__PARALLEL__ -lpthread -lrt
+endif
 
 original : bin/cspice
 parallel : bin/cspice-parallel
-pthread : bin/cspice-pthread
+pthread : bin/cspice-pthread$(threadcnt)
 cuda : bin/cspice-cuda
 
 src/parseLEX.cpp: src/parser.l src/parseYY.hpp
@@ -42,7 +47,7 @@ obj/parseYY.o : src/parser.cpp
 bin/cspice : $(COBJS)
 	$(CXX) $(CFLAGS) -o $@ $(COBJS)
 
-bin/cspice-pthread : $(COBJS)
+bin/cspice-pthread$(threadcnt) : $(COBJS)
 	$(CXX) $(CFLAGS) -o $@ $(COBJS)
 
 bin/cspice-parallel : $(CUOBJS)

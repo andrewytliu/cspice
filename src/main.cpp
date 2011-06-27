@@ -1,5 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include "utils.h"
 #include "parser.h"
 #include "simulator.h"
 
@@ -24,11 +27,13 @@ int main (int argc, char const* argv[])
 
    try{
       Parser parser(argv[1]);
-      parser.getCircuit().print() ;
+      //parser.getCircuit().print();
       Simulator simulator(&parser.getCircuit(), fout);
       for(int i = 0 , size = parser.getConfig().size() ; i < size ; ++ i) {
          simulator.simulate(parser.getConfig()[i]);
       }
+      printTimeElapsed();
+      fprintf(stderr,"+ elumation done.\n");
    } catch (ParseError e) {
       cerr << e.message() << endl;
    } catch (SimulateException e) {

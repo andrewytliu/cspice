@@ -6,7 +6,50 @@
 #include <cmath>
 #include "element.h"
 #include "utils.h"
+
+#ifdef __PARALLEL__
+#include <pthread.h>
+#include <time.h>
+#endif
 using namespace std;
+
+#ifdef __PARALLEL__
+inline long long nsecElapsed(struct timespec ts) {
+   // may overflow if seconds elapsed exceed 10^9
+   return ts.tv_nsec + (long long)ts.tv_sec*1000000000;
+}
+//extern int clock_gettime(clockid_t, struct timespec);
+#endif
+void printTimeElapsed() {
+   static bool flag = 0;
+#ifdef __PARALLEL__
+   static struct timespec pclock,sclock,nclock;
+   if(!flag) {
+      clock_gettime(CLOCK_REALTIME,&sclock);
+      pclock = sclock;
+      flag = 1;
+   } else {
+      clock_gettime(CLOCK_REALTIME,&nclock);
+      long long ts = nsecElapsed(nclock)-nsecElapsed(sclock);
+      long long tp = nsecElapsed(nclock)-nsecElapsed(pclock);
+      printf("> time elapsed: %.3lf (%.3lf)\n",(double)ts/1000000000.0,
+                                               (double)tp/1000000000.0);
+      pclock = nclock;
+   }
+#else // no __PARALLEL__
+   static int pclock,sclock,nclock;
+   if(!flag) {
+      sclock = pclock = clock();
+      flag = 1;
+   } else {
+      nclock = clock();
+      printf("> time elapsed: %.3lf (%.3lf)\n",(double)(nclock-sclock)/CLOCKS_PER_SEC,
+                                               (double)(nclock-pclock)/CLOCKS_PER_SEC);
+      pclock = nclock;
+   }
+#endif
+}
+
 
 void printFormula(const vector<vector<const Element*> >& collection , ostream& fout) {
    int sizeOfCollection = collection.size() ;

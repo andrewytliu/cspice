@@ -1,0 +1,8 @@
+#!/bin/bash
+# USAGE: run [benchmark] [program]
+
+for i in {1..12}
+do
+  echo "generating $1.netlist$i:"
+  ./$1 $i $1.netlist$i
+done

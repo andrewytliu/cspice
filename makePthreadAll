@@ -1,0 +1,9 @@
+#!/bin/bash
+# USAGE: makePthreadAll
+
+make clean
+for i in {2..8}
+do
+  make pthread threadcnt=$i
+  make clean
+done

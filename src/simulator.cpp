@@ -107,12 +107,12 @@ void Simulator::findFormula(const Source * src , TransferFunction& tf) {
    }
 
    // DEBUG: print out formula
-//   cout << "======== Print out Den Trees ========" << endl ;
-//   printFormula(denSpanningTrees , cout) ;
-//   cout << endl ;
-//   cout << "======== Print out Num Trees ========" << endl ;
-//   printFormula(numSpanningTrees , cout) ;
-//   cout << endl ;
+ /*  cout << "======== Print out Den Trees ========" << endl ;
+   printFormula(denSpanningTrees , cout) ;
+   cout << endl ;
+   cout << "======== Print out Num Trees ========" << endl ;
+   printFormula(numSpanningTrees , cout) ;
+   cout << endl ;*/
 
    // 5. expand formula
    printTimeElapsed();

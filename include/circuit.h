@@ -162,6 +162,19 @@ class PrimState {
                    for(i=0;i<size;i++)
                       used[i].resize(circuit->nodes[i]->connections.size(),0);
                 }
+      PrimState(int si, vector<bool> vi, vector<vector<bool> > ui,
+                vector<const Element*> ci, vector<vector<const Element*> > *ri, 
+                #ifdef __ELIMINATION__
+                vector<pair<char, unsigned long long> >* ti,
+                #endif
+                Circuit* cir):
+                size(si), visited(vi), current_tree(ci), result(ri),
+                #ifdef __ELIMINATION__
+                trees(ti),
+                #endif
+                circuit(cir) {
+                   used = ui;
+                }
       PrimState shrink(int u, const Element* e) {
          PrimState ret = *this;
          ret.visited[u]=1;

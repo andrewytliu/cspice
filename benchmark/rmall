@@ -1,0 +1,8 @@
+#!/bin/bash
+# USAGE: remove all .netlist
+
+PTH=`readlink -f $0`
+DIR=`dirname $PTH`
+cd $DIR
+rm *.netlist*
+

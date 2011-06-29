@@ -10,12 +10,15 @@
 #include <pthread.h>
 
 #ifndef threadcnt
-#define threadcnt 6
+#define threadcnt 6 // default threadcnt is 6
 #endif
 
 pthread_mutex_t __queMutex;
 pthread_mutex_t __treeMutex;
+pthread_mutex_t __idleMutex;
 queue<PrimState> __taskQue;
+
+int __idleNum,__busyNum;
 
 #endif // __PARALLEL__
 
@@ -127,12 +130,7 @@ void* processTask(void *arg) {
          if(!ps.visited[u]) continue;
          if(ps.used[v][i]) continue;
          ps.used[v][i]=1;
-//         printf("[%d %d, %d %d] ",u,ps.startFrom[u],v,ps.startFrom[v]);
-//         cout << adj[i].element->formula() << endl;
-//         if(ps.used.find(make_pair(v,i))!=ps.used.end()) continue;
-//         ps.used.insert(make_pair(v,i));
          PrimState ns = ps.shrink(v,adj[i].element);
-         //ns.startFrom[v] = i+1;
          // push new state in queue, lock is needed
          pthread_mutex_lock(&__queMutex);
          __taskQue.push(ns);
@@ -146,11 +144,56 @@ void* processTask(void *arg) {
 
 void* dfsAdapter(void* arg) {
    PrimState ps = *((PrimState*)arg);
+
+   pthread_mutex_lock(&__idleMutex);
+   __busyNum++;
+   __idleNum--;
+   pthread_mutex_unlock(&__idleMutex);
+
    ps.circuit->dfs(ps.size,ps.visited,ps.used,ps.current_tree,*(ps.result)
                    #ifdef __ELIMINATION__
                    ,*(ps.trees)
                    #endif
                    );
+
+   pthread_mutex_lock(&__idleMutex);
+   __busyNum--;
+   __idleNum++;
+   pthread_mutex_unlock(&__idleMutex);
+
+   //printf("2 %d %d\n",__busyNum,__taskQue.size());
+   while(__busyNum||__taskQue.size()) { // while there is some other busy thread share the workload
+      bool gotTask = false;
+      //printf("[new iteration %d %d %d]\n",__busyNum,__idleNum,(int)__taskQue.size());
+      if(__taskQue.size()) {
+         pthread_mutex_lock(&__queMutex);
+         if(__taskQue.size()) {
+            ps = __taskQue.front();
+            __taskQue.pop();
+            gotTask = true;
+         }
+         pthread_mutex_unlock(&__queMutex);
+      }
+      if(gotTask) {
+         pthread_mutex_lock(&__idleMutex);
+         __busyNum++;
+         __idleNum--;
+         pthread_mutex_unlock(&__idleMutex);
+         ps.circuit->dfs(ps.size,ps.visited,ps.used,ps.current_tree,*(ps.result)
+                         #ifdef __ELIMINATION__
+                         ,*(ps.trees)
+                         #endif
+                         );
+         pthread_mutex_lock(&__idleMutex);
+         __busyNum--;
+         __idleNum++;
+         pthread_mutex_unlock(&__idleMutex);
+      } else pthread_yield();
+   }
+   pthread_mutex_lock(&__idleMutex);
+   __idleNum--;
+   pthread_mutex_unlock(&__idleMutex);
+   //printf("<finished>\n");
    return NULL;
 }
 void Circuit::enumParallel(
@@ -163,28 +206,6 @@ void Circuit::enumParallel(
 #endif // __ELIMINATION__
       ) {
 
-   // for debug only.. print the graph
-   /*   puts("list of edges:");
-        for(int v=0;v<size;v++) {
-        vector<Connection>& adj=nodes[v]->connections;
-        for(int i=0;i<(int)adj.size();i++) {
-        int desId = adj[i].destination->nodeId;
-        int u = getIndexById(desId);
-        printf("<%d %d> ",v,u);
-        cout << adj[i].element->formula() << endl;
-        }
-        }
-        puts("list of equivalents:");
-        for(int v=0;v<size;v++) {
-        vector<Equivalent>& eq=nodes[v]->equivalents ;
-        for(int i=0;i<(int)eq.size();i++) {
-        int desId = eq[i].node->nodeId;
-        int u = getIndexById(desId);
-        printf("<%d %d>\n",v,u);
-        }
-        }
-        puts("--");*/
-
    /* initialize task queue */
    while(!__taskQue.empty())
       __taskQue.pop();
@@ -195,6 +216,7 @@ void Circuit::enumParallel(
 #endif
    pthread_mutex_init(&__queMutex, NULL);
    pthread_mutex_init(&__treeMutex, NULL);
+   pthread_mutex_init(&__idleMutex, NULL);
 
    /* start parallel threads */
    // process tasks in "phase"
@@ -217,9 +239,11 @@ void Circuit::enumParallel(
    }
 
    /* parallel DFS */
-   int startnum = __taskQue.size();
-   printf("<threadcnt: %d>\n",threadcnt);
-//   printf("<startnum: %d>\n",startnum);
+//   int startnum = __taskQue.size();
+   int startnum = threadcnt<(int)__taskQue.size()? threadcnt:(int)__taskQue.size();
+   __busyNum = 0;
+   __idleNum = startnum;
+//   printf("<threadcnt: %d, startnum: %d>\n",threadcnt,startnum);
    delete [] states;
    free(thHandles);
    states = new PrimState[startnum];
@@ -238,6 +262,7 @@ void Circuit::enumParallel(
    delete [] states;
    pthread_mutex_destroy(&__queMutex);
    pthread_mutex_destroy(&__treeMutex);
+   pthread_mutex_destroy(&__idleMutex);
 
 }
 
@@ -252,7 +277,7 @@ void Circuit::dfs(
 #ifdef __ELIMINATION__
       ,vector<pair<char , unsigned long long> >& trees
 #endif
-      ) {
+      ) {//printf("[?]\n");
    // visited[i]  -> has nodes[i] been contained in the tree yet?
    // used[i][j]  -> has nodes[i].connections[j] been used yet?
    // current_tree-> an array storing current tree edges
@@ -260,6 +285,11 @@ void Circuit::dfs(
 
    // check if all the nodes are used
    bool done = true ;
+
+#ifdef __PARALLEL__
+   // flag to avoid forking the first task
+   bool forkflag = false;
+#endif
 
    vector<pair<int , int> > recoverList ;
 
@@ -277,11 +307,40 @@ void Circuit::dfs(
                propagateEquivalents(v , visited) ;
                used[v][i] = true ;
                current_tree.push_back(this->nodes[v]->connections[i].element) ;
+
+/**************************** distribute tasks if necessary ******************************/
+#ifdef __PARALLEL__
+bool didPush = false;
+if(forkflag && __idleNum>(int)__taskQue.size()) {
+   pthread_mutex_lock(&__idleMutex);
+   pthread_mutex_lock(&__queMutex);
+   // the lock resides inside the preliminary if condition to avoid frequent mutex access
+   // the __idleNum however, must be judged again to avoid racing condition
+   if(__idleNum>(int)__taskQue.size()) {
+#ifdef __ELIMINATION__
+   __taskQue.push(PrimState(size, visited, used, current_tree, &result, &trees, this));
+#else
+   __taskQue.push(PrimState(size, visited, used, current_tree, &result, this));
+#endif
+   didPush = true;
+   }
+   pthread_mutex_unlock(&__idleMutex);
+   pthread_mutex_unlock(&__queMutex);
+}
+if(!didPush) {
+#endif
+/*****************************************************************************************/
 #ifdef __ELIMINATION__
                this->dfs(size , visited , used , current_tree , result , trees) ;
 #else
                this->dfs(size , visited , used , current_tree , result) ;
 #endif
+
+#ifdef __PARALLEL__
+forkflag = true;
+}
+#endif
+/*****************************************************************************************/
                current_tree.pop_back() ;
                visited[v] = false ;
                propagateEquivalents(v , visited) ;
@@ -303,7 +362,7 @@ void Circuit::dfs(
 #ifdef __ELIMINATION__
       // check if elimination could be done
       elimSub(current_tree,result,trees);
-#else // __ELIMINATION__
+#else // no __ELIMINATION__
       result.push_back(current_tree) ;
 #endif // __ELIMINATION__
 #ifdef __PARALLEL__
